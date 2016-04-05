@@ -101,6 +101,8 @@
 
 ###15,解决客户反馈打开应用就闪退的隐形坑
 ListView嵌套GridView计算高度setGridViewHeightBasedOnChildren时，getView会计算到空值的情况，在这种情况下一定不要在convertView为null的情况下去调用hodler中刷新一些UI值，否则在某些手机下会出现空指针的情况，此时，如果调用View.setBackground方法会引起 NoSuchMethodError错误，这时我们一定要对这些手机版本进行控制，通过官方API提供的@TargetApi(Build.VERSION_CODES.JELLY_BEAN)进行控制即可，保证运行低版本时不会出现NoSuchMethodError错误。
+如下图：
+![pic_01](https://github.com/JackWaiting/pitfalls-android/blob/master/pitfalls.png)
 
 
 ###16，不要在Android的Application对象中缓存数据
