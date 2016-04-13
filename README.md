@@ -2,6 +2,23 @@
 
 ***
 
+### 1总结如何快速、高效、无错误的修改应用的包名
+android如果想修改包名，如果牵扯到Manifest或者自定义控件带命名空间的。总会出现一些错误，比如，包名错乱、包名缺少、控件和控件交叉在一起。其实是可以避免这样错误的，总结如下：
+eclipse:
+1.命名空间的书写问题
+例如：xmlns:myxmlns="http://schemas.android.com/apk/res/包名"，xmlns:app="http://schemas.android.com/apk/res-auto"第一个跟包名有很大关系，如果用第一个每次修改包名后，你要对应的xml里修改命名空间的包名。所以，不建议用第一种。
+2.xml结束符
+修改包名跟layout里面的控件。例如，
+<com.xxx.xxx.xxx.imageview></com.xxx.xxx.xxx.imageview>这样的方式很容易造成错误，建议用<com.xxx.xxx.xxx.imageview/>。这样更不容易出现错误。
+3.manifest文件最好复制出来，修改好包名再复制进去，然后进行修改。这样更好修改。如果直接不复制出来，你的service、receiver里面很容易出错。
+4.如果按照上面修改，在.java文件里也会出现错误，这个重新导下包就好了。
+android studio:
+android studio很好的解决了这个问题。
+修改好之后，重启启动下studio，在build.gradle里找到application id修改就好了。
+
+建议使用studio，eclipse修改不方便。很容易出现问题。
+
+
 ### 4.布局优化
 根据Android源码的分析(具体见文章)，RelativeLayout将对所有的子View进行两次measure，而LinearLayout在使用weight属性进行布局时也会对子View进行两次measure，如果他们位于整个View树的顶端时并可能进行多层的嵌套时，位于底层的View将会进行大量的measure操作，大大降低程序性能。因此，应尽量将RelativeLayout和LinearLayout置于View树的底层，并减少嵌套。  
 配合`<include>`标签(布局重用)、`<merge>`标签(减少层级)、Viewstub(按需加载)。总之，关于布局优化，原则上尽量减少布局文件的层级。
