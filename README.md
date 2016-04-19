@@ -126,3 +126,25 @@ ListView嵌套GridView计算高度setGridViewHeightBasedOnChildren时，getView�
 3、使用官方推荐的方法中的一种将数据持久化，存储在磁盘中；
 
 4、在使用数据和句柄的时候做空值检测；
+
+
+##16，四月Android开发细节点总结
+1. 使用ListView时如果用到removeHeaderView，一定要确定ListView已经使用了setAdapter方法，不然会报NullPointException，addFooterView必须在setAdapter之前才会生效。
+
+2. 使用ListView的时候，布局尽量使用fill_parent或者写死，如果使用wrap_content，它初始化的时候需要测量，会不断调用adapter的getView方法。
+
+3. 使用ListView时如果要隐藏HeaderView，可以通过removeHeaderView来实现，也可以把headerView设为gone，然后headerView.setPadding(-headerView.height）来实现。
+
+4. 使用ListView时尽量不使用onItemClick和onItemLongClick，而在adapter的getView中使用onClick和onLongClick。
+
+5. Activity保存状态信息是应该在onPause时做，而不是onStop时做，以为可能因为内存紧张，可能不会调用onStop方法就已经被回收。
+
+6. 在自定义一个UI控件的时候，一定要提供一个具有两个参数类型分别为Context和AttributeSet的构造函数，否则的话，该自定义控件就不可以在UI布局文件中使用。
+ 
+7. 在定义Dialog，调用其dismiss和show方法的时候，一定要注意判断调用该Dialog的activity是不是已经为空或者已经finish了。
+
+8. 单例中如果hold有context，一定要保证这个context是ApplicationContext，因为如果是Activity的context，会影响这个activity的回收。
+
+9. 用SparseArray<E>代替HashMap能提高性能。
+
+10. 当使用.9图做为一个view的background，如果在代码中动态修改了它的background，那么，这个view原先设置的padding将会失效。应先保存去padding值，然后等动态设置完background后再通过setPadding设置padding值。
