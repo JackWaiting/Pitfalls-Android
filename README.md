@@ -128,7 +128,7 @@ ListView嵌套GridView计算高度setGridViewHeightBasedOnChildren时，getView�
 4、在使用数据和句柄的时候做空值检测；
 
 
-##16，四月Android开发细节点总结
+##17，四月Android开发细节点总结
 1. 使用ListView时如果用到removeHeaderView，一定要确定ListView已经使用了setAdapter方法，不然会报NullPointException，addFooterView必须在setAdapter之前才会生效。
 
 2. 使用ListView的时候，布局尽量使用fill_parent或者写死，如果使用wrap_content，它初始化的时候需要测量，会不断调用adapter的getView方法。
@@ -148,3 +148,16 @@ ListView嵌套GridView计算高度setGridViewHeightBasedOnChildren时，getView�
 9. 用SparseArray<E>代替HashMap能提高性能。
 
 10. 当使用.9图做为一个view的background，如果在代码中动态修改了它的background，那么，这个view原先设置的padding将会失效。应先保存去padding值，然后等动态设置完background后再通过setPadding设置padding值。
+
+##18，总结蜗灯Textin中出现的BUG问题
+1、对问题进行setBackgrond会导致低版本出现java.lang.NoSuchMethodError问题。
+解决此类问题的版本之前已经提示过，但是好像无法彻底解决，因此建议大家在项目中不要直接再去使用setBackgrond，因此带来的闪退是用户无法接受的，建议使用setBackgroundDrawablue和setbackgroundResource代替，以此来设备低版本出现的闪退问题。
+
+2、ImageLoader导致出现的运行异常问题
+目前对此问题的解决方法是在调用displayImage时进行try{}catch{}进行捕获，至少保证程序不会闪退。
+
+3、Fragment中调用getResource导致的空指针异常
+通过分析，出现此异常的原因可能是android生命周期引起的非正常情况，在某些手机上一旦出现Activity还未加载就获取getResource便会导致此类问题出现，解决的办法是延长此Fragment的生命周期，调用ApplicationContext();
+
+4、在加载Log日志的时候，出现的空指针问题
+在我们的程序中，有时候会去打印一些集合或者实例化对象的某些属性，这些属性在某些情况下不做非空判断是会导致空指针出现的，一般我们会忽略输出Log日志的忘掉非空判断，这里提醒大家，平时一定要注意。
