@@ -179,3 +179,16 @@ ListView嵌套GridView计算高度setGridViewHeightBasedOnChildren时，getView�
 
 4、在加载Log日志的时候，出现的空指针问题
 在我们的程序中，有时候会去打印一些集合或者实例化对象的某些属性，这些属性在某些情况下不做非空判断是会导致空指针出现的，一般我们会忽略输出Log日志的忘掉非空判断，这里提醒大家，平时一定要注意。
+
+##19，Android 上传应用商店时出现ERROR getting 错误
+最近出现一个bug，是上传应用商店的时候，部分应用商店会调用aapt工具获取apk信息，在获取信息时会出现错误。
+
+这个错误并不长出现，只有一些国外的解决文章，还是花了一些时间才解决，这里记录一下了，如果少年们出现了类似的问题也可是试一下下面的解决方案。
+
+首先我们如果出现上传问题以后可以使用aapt工具检测一下，工具在 sdk build-tools 文件夹下，用 cmd 的方式打开。
+命令是 aapt dump badging xx.apk xx为应用名称，意思是获取apk相关信息。当程序出现问题就会出现和应用商店相同的提示信息。
+ERROR getting 'android:name' attribute: attribute is not a string value
+在我接手的项目里面出现这个问题的原因是，AndroidManiFest 中 activity 的 android:name= 用了@string的模式，这种相关的使用方式导致 aapt 无法识别。
+修改方法就是把 @string 中的字符串复制到 android:name 中，然后使用 aapt 工具跑一下就可以解决问题了。如果重新打包的应用上传的应用商店时还出现错误提示，可以尝试刷新页面。
+
+网上有国外的解决方案是吧 AndroidMainFest中所有 @string 都是用硬编码的方式写到文件里，这里其实并不需要的，只要没有提示 ERROR getting 'android:label' attribute: attribute is not a string value 或者是其他的类似提示，都只要修改 activity 里 android:name 就可以了
