@@ -167,7 +167,7 @@ ListView嵌套GridView计算高度setGridViewHeightBasedOnChildren时，getView�
 
 10. 当使用.9图做为一个view的background，如果在代码中动态修改了它的background，那么，这个view原先设置的padding将会失效。应先保存去padding值，然后等动态设置完background后再通过setPadding设置padding值。
 
-##18，总结蜗灯Textin中出现的BUG问题
+##18，总结Testin中出现的BUG问题
 1、对问题进行setBackgrond会导致低版本出现java.lang.NoSuchMethodError问题。
 解决此类问题的版本之前已经提示过，但是好像无法彻底解决，因此建议大家在项目中不要直接再去使用setBackgrond，因此带来的闪退是用户无法接受的，建议使用setBackgroundDrawablue和setbackgroundResource代替，以此来设备低版本出现的闪退问题。
 
