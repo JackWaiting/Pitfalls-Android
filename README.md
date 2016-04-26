@@ -192,3 +192,16 @@ ERROR getting 'android:name' attribute: attribute is not a string value
 修改方法就是把 @string 中的字符串复制到 android:name 中，然后使用 aapt 工具跑一下就可以解决问题了。如果重新打包的应用上传的应用商店时还出现错误提示，可以尝试刷新页面。
 
 网上有国外的解决方案是吧 AndroidMainFest中所有 @string 都是用硬编码的方式写到文件里，这里其实并不需要的，只要没有提示 ERROR getting 'android:label' attribute: attribute is not a string value 或者是其他的类似提示，都只要修改 activity 里 android:name 就可以了
+
+##20，Android-G610手机出现的奇怪适配问题
+机名：G610
+Androd版本：4.2.2
+主屏分辨率：960x540像素
+
+问题：在此手机上出现适配问题如下图：
+![pic_01](https://github.com/JackWaiting/pitfalls-android/blob/master/images_auto.png)
+
+出现的原因：目前只能是猜测，由于手机和分辨率原因，导致下面的布局被拥挤，或某属性在此手机内部支持的可能性。如果大家有接触过类似的问题，欢迎指正。
+
+最终的解决办法：更换其他布局，使用适配性更高的写法。
+
