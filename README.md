@@ -2,6 +2,35 @@
 
 ***
 
+###1，RadioGroup调用check(id)方法时，onCheckedChanged(RadioGroup group, int checkedId)方法被执行多
+多次调用经常会干扰到程序的正常逻辑，导致出现奇怪的问题。最初我会放弃RadioGroup的onCheckedChanged()的监听，而改用它的onClick()事件，但是onClick()又会存在多次点击的问题，依旧不是比较理想的解法。  
+要想让它只回调一次而不是多次，正确的做法应该是：RadioButton.setChecked(true); [Link](http://stackoverflow.com/questions/10263778/radiogroup-calls-oncheckchanged-three-times "Link")   
+
+
+###2，大图片裁剪终极解决方案  
+APP在Android手机上实现拍照截图这一功能，虽然看起来非常简单，但是网上大多只是Demo水准，用在实际项目中问题漏洞百出，经常导致截取照片时程序异常的BUG。   
+所幸在Google上搜到了一个不错的博客，才完美解决了这个问题。URL：[Android大图片裁剪终极解决方案](http://my.oschina.net/ryanhoo/blog/86842?fromerr=nYvxpdVH)   
+总结一下最关键的原因，**截大图用URI，小图用Bitmap**，网上的Demo几乎都是用的Bitmap，而且并不提及如何使用URI。我们知道，现在的Android智能手机的摄像头都是几百万的像素，拍出来的图片都是非常大的。因此我们截图无论大图小图都要统一使用Uri进行操作。
+关键代码： 
+
+	private void cropImageUri(Uri uri, int outputX, int outputY, int requestCode){
+	    Intent intent = new Intent("com.android.camera.action.CROP");
+	    intent.setDataAndType(uri, "image/*");
+	    intent.putExtra("crop", "true");
+	    intent.putExtra("aspectX", 2);
+	    intent.putExtra("aspectY", 1);
+	    intent.putExtra("outputX", outputX);
+	    intent.putExtra("outputY", outputY);
+	    intent.putExtra("scale", true);
+	    intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+	    intent.putExtra("return-data", false);
+	    intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
+	    intent.putExtra("noFaceDetection", true); // no face detection
+	    startActivityForResult(intent, requestCode);
+	}
+
+***
+
 ### 1总结如何快速、高效、无错误的修改应用的包名
 android如果想修改包名，如果牵扯到Manifest或者自定义控件带命名空间的。总会出现一些错误，比如，包名错乱、包名缺少、控件和控件交叉在一起。其实是可以避免这样错误的，总结如下：
 
