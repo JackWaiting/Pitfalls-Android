@@ -187,7 +187,7 @@ Androd版本：4.2.2
 
 最终的解决办法：更换其他布局，使用适配性更高的写法。
 
-##，22 Android 5月份细节点总结
+##22， Android 5月份细节点总结
 1. 一个View，如果既设了padding，又设了paddingTop，那么只有padding生效，paddingTop是无效的。
 
 2. 在开发下载功能的时候，使用Service和DB是用来在activity死掉后，管理和记录下载状态。
