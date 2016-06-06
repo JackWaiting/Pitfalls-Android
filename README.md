@@ -187,3 +187,23 @@ Androd版本：4.2.2
 
 最终的解决办法：更换其他布局，使用适配性更高的写法。
 
+##，22 Android 5月份细节点总结
+1. 一个View，如果既设了padding，又设了paddingTop，那么只有padding生效，paddingTop是无效的。
+
+2. 在开发下载功能的时候，使用Service和DB是用来在activity死掉后，管理和记录下载状态。
+
+3. 可以把ListView的adapter设置为null，这样就只显示ListView的headView，4.0以下也是没有问题的。
+
+4. 要注意这样的问题：ListView的adapter是通过一个list关联其item的，如果子线程会动态修改这个list（即子线程和adapter引用同一个对象，子线程会修改这个对象的值），在滑动ListView的时候就会有异常抛出。
+
+5. 要十分注意数据库降版本的情况。
+
+6. ListView如果布局高度不确定的时候，会计算其或其父控件的高度，所以会造成其getView方法被重复调用的情况。
+
+7. If an activity is paused or stopped, the system can drop it from memory either by asking it to finish (calling its finish() method), or simply killing its process. 
+
+8. 如果ListView没有HeaderView或者FooterView的时候，与ListView相关联的Adapter就是传进来的参数Adapter。如果有，则原来的Adapter将被包装成HeaderViewListAdapter，通过getWrappedAdapter()方法可以获取原来的Adapter。
+
+9.尽量少使用setBackGround()方法设置背景，由于版本问题会引起运行错误;在activity中通过getWindow().setBackgroundDrawable(null);可以减少一个层级。（getWindow().setBackgroundDrawable()还有另外一个用法就是输入法弹下去时背景为黑色，可以通过这个来改为想要的颜色）。
+
+10. 如何让EditText不自动获取焦点？在EditText的父Layout中,加入下面的两个属性即可 : android:focusable="true"，android:focusableInTouchMode="true"。
