@@ -2,6 +2,53 @@
 
 ***
 
+###1，RadioGroup调用check(id)方法时，onCheckedChanged(RadioGroup group, int checkedId)方法被执行多
+多次调用经常会干扰到程序的正常逻辑，导致出现奇怪的问题。最初我会放弃RadioGroup的onCheckedChanged()的监听，而改用它的onClick()事件，但是onClick()又会存在多次点击的问题，依旧不是比较理想的解法。  
+要想让它只回调一次而不是多次，正确的做法应该是：RadioButton.setChecked(true); [Link](http://stackoverflow.com/questions/10263778/radiogroup-calls-oncheckchanged-three-times "Link")   
+
+
+###2，大图片裁剪终极解决方案  
+APP在Android手机上实现拍照截图这一功能，虽然看起来非常简单，但是网上大多只是Demo水准，用在实际项目中问题漏洞百出，经常导致截取照片时程序异常的BUG。   
+所幸在Google上搜到了一个不错的博客，才完美解决了这个问题。URL：[Android大图片裁剪终极解决方案](http://my.oschina.net/ryanhoo/blog/86842?fromerr=nYvxpdVH)   
+总结一下最关键的原因，**截大图用URI，小图用Bitmap**，网上的Demo几乎都是用的Bitmap，而且并不提及如何使用URI。我们知道，现在的Android智能手机的摄像头都是几百万的像素，拍出来的图片都是非常大的。因此我们截图无论大图小图都要统一使用Uri进行操作。
+关键代码： 
+
+	private void cropImageUri(Uri uri, int outputX, int outputY, int requestCode){
+	    Intent intent = new Intent("com.android.camera.action.CROP");
+	    intent.setDataAndType(uri, "image/*");
+	    intent.putExtra("crop", "true");
+	    intent.putExtra("aspectX", 2);
+	    intent.putExtra("aspectY", 1);
+	    intent.putExtra("outputX", outputX);
+	    intent.putExtra("outputY", outputY);
+	    intent.putExtra("scale", true);
+	    intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+	    intent.putExtra("return-data", false);
+	    intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
+	    intent.putExtra("noFaceDetection", true); // no face detection
+	    startActivityForResult(intent, requestCode);
+	}
+
+***
+
+### 1总结如何快速、高效、无错误的修改应用的包名
+android如果想修改包名，如果牵扯到Manifest或者自定义控件带命名空间的。总会出现一些错误，比如，包名错乱、包名缺少、控件和控件交叉在一起。其实是可以避免这样错误的，总结如下：
+
+**eclipse:**	
+1.命名空间的书写问题		
+例如：xmlns:myxmlns="http://schemas.android.com/apk/res/包名"，xmlns:app="http://schemas.android.com/apk/res-auto"第一个跟包名有很大关系，如果用第一个每次修改包名后，你要对应的xml里修改命名空间的包名。所以，不建议用第一种。	
+2.xml结束符	
+修改包名跟layout里面的控件。例如，		
+<com.xxx.xxx.xxx.imageview></com.xxx.xxx.xxx.imageview>这样的方式很容易造成错误，建议用<com.xxx.xxx.xxx.imageview/>。这样更不容易出现错误。		
+3.manifest文件最好复制出来，修改好包名再复制进去，然后进行修改。这样更好修改。如果直接不复制出来，你的service、receiver里面很容易出错。	
+4.如果按照上面修改，在.java文件里也会出现错误，这个重新导下包就好了。		
+**android studio:**		
+android studio很好的解决了这个问题。	
+修改好之后，重启启动下studio，在build.gradle里找到application id修改就好了。	
+
+建议使用studio，eclipse修改不方便。很容易出现问题。	
+
+
 ### 4.布局优化
 根据Android源码的分析(具体见文章)，RelativeLayout将对所有的子View进行两次measure，而LinearLayout在使用weight属性进行布局时也会对子View进行两次measure，如果他们位于整个View树的顶端时并可能进行多层的嵌套时，位于底层的View将会进行大量的measure操作，大大降低程序性能。因此，应尽量将RelativeLayout和LinearLayout置于View树的底层，并减少嵌套。  
 配合`<include>`标签(布局重用)、`<merge>`标签(减少层级)、Viewstub(按需加载)。总之，关于布局优化，原则上尽量减少布局文件的层级。
@@ -187,6 +234,7 @@ Androd版本：4.2.2
 
 最终的解决办法：更换其他布局，使用适配性更高的写法。
 
+<<<<<<< HEAD
 ##22， Android 5月份细节点总结
 1. 一个View，如果既设了padding，又设了paddingTop，那么只有padding生效，paddingTop是无效的。
 
@@ -207,3 +255,11 @@ Androd版本：4.2.2
 9.尽量少使用setBackGround()方法设置背景，由于版本问题会引起运行错误;在activity中通过getWindow().setBackgroundDrawable(null);可以减少一个层级。（getWindow().setBackgroundDrawable()还有另外一个用法就是输入法弹下去时背景为黑色，可以通过这个来改为想要的颜色）。
 
 10. 如何让EditText不自动获取焦点？在EditText的父Layout中,加入下面的两个属性即可 : android:focusable="true"，android:focusableInTouchMode="true"。
+=======
+##21, java float类型比较细节 ：
+举个例子    27.2 == 272/10.0;   求输出结果 ;
+一般人第一眼看到肯定觉得很简单 , 返回就是true嘛 ;    当告知你答案是false ,你依然不解,急着在编译器上实践，结果发现真的是false ,为什么呢？
+
+答案是 ： java中直接声明 27.2 默认是为double类型 ; 而272/10.0 返回时一个float类型 ;  double == float 自然返回false ; 
+可换成这个写法  27.2f == 272/10.0 ; 直接声明一个float类型 ;
+>>>>>>> main/master
