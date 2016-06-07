@@ -20,16 +20,16 @@
 
 9.尽量少使用setBackGround()方法设置背景，由于版本问题会引起运行错误;在activity中通过getWindow().setBackgroundDrawable(null);可以减少一个层级。（getWindow().setBackgroundDrawable()还有另外一个用法就是输入法弹下去时背景为黑色，可以通过这个来改为想要的颜色）。
 
-10. 如何让EditText不自动获取焦点？在EditText的父Layout中,加入下面的两个属性即可 : android:focusable="true"，android:focusableInTouchMode="true"。
-=======
-###28, java float类型比较细节 ：
+10.如何让EditText不自动获取焦点？在EditText的父Layout中,加入下面的两个属性即可 : android:focusable="true"，android:focusableInTouchMode="true"。    
+
+### 28. java float类型比较细节 ：
 举个例子    27.2 == 272/10.0;   求输出结果 ;
 一般人第一眼看到肯定觉得很简单 , 返回就是true嘛 ;    当告知你答案是false ,你依然不解,急着在编译器上实践，结果发现真的是false ,为什么呢？
 
 答案是 ： java中直接声明 27.2 默认是为double类型 ; 而272/10.0 返回时一个float类型 ;  double == float 自然返回false ; 
 可换成这个写法  27.2f == 272/10.0 ; 直接声明一个float类型 ;    
 
-###27，Android-G610手机出现的奇怪适配问题
+###27.Android-G610手机出现的奇怪适配问题
 机名：G610
 Androd版本：4.2.2
 主屏分辨率：960x540像素
@@ -110,6 +110,7 @@ android studio很好的解决了这个问题。
 根据Android官方文档：Android 6.0设备通过蓝牙和Wi-Fi扫描访问外部硬件设备时，你的应用需要添加ACCESS_FINE_LOCATION或者ACCESS_COARSE_LOCATION权限。    
 
 ***
+以下为正序，以上为倒序。
 ***
 ##一、Wifi灯项目坑总结
 ### 1.radiobutton setChecked(false)后，再setChecked(true)无效，只有先选择其它的radiobutton才会有效。
