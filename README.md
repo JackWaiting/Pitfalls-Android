@@ -1,13 +1,54 @@
 # pitfalls-android
 
 ***
+###29， Android 5月份细节点总结
+1. 一个View，如果既设了padding，又设了paddingTop，那么只有padding生效，paddingTop是无效的。
 
-###1，RadioGroup调用check(id)方法时，onCheckedChanged(RadioGroup group, int checkedId)方法被执行多
+2. 在开发下载功能的时候，使用Service和DB是用来在activity死掉后，管理和记录下载状态。
+
+3. 可以把ListView的adapter设置为null，这样就只显示ListView的headView，4.0以下也是没有问题的。
+
+4. 要注意这样的问题：ListView的adapter是通过一个list关联其item的，如果子线程会动态修改这个list（即子线程和adapter引用同一个对象，子线程会修改这个对象的值），在滑动ListView的时候就会有异常抛出。
+
+5. 要十分注意数据库降版本的情况。
+
+6. ListView如果布局高度不确定的时候，会计算其或其父控件的高度，所以会造成其getView方法被重复调用的情况。
+
+7. If an activity is paused or stopped, the system can drop it from memory either by asking it to finish (calling its finish() method), or simply killing its process. 
+
+8. 如果ListView没有HeaderView或者FooterView的时候，与ListView相关联的Adapter就是传进来的参数Adapter。如果有，则原来的Adapter将被包装成HeaderViewListAdapter，通过getWrappedAdapter()方法可以获取原来的Adapter。
+
+9.尽量少使用setBackGround()方法设置背景，由于版本问题会引起运行错误;在activity中通过getWindow().setBackgroundDrawable(null);可以减少一个层级。（getWindow().setBackgroundDrawable()还有另外一个用法就是输入法弹下去时背景为黑色，可以通过这个来改为想要的颜色）。
+
+10. 如何让EditText不自动获取焦点？在EditText的父Layout中,加入下面的两个属性即可 : android:focusable="true"，android:focusableInTouchMode="true"。
+=======
+###28, java float类型比较细节 ：
+举个例子    27.2 == 272/10.0;   求输出结果 ;
+一般人第一眼看到肯定觉得很简单 , 返回就是true嘛 ;    当告知你答案是false ,你依然不解,急着在编译器上实践，结果发现真的是false ,为什么呢？
+
+答案是 ： java中直接声明 27.2 默认是为double类型 ; 而272/10.0 返回时一个float类型 ;  double == float 自然返回false ; 
+可换成这个写法  27.2f == 272/10.0 ; 直接声明一个float类型 ;    
+
+###27，Android-G610手机出现的奇怪适配问题
+机名：G610
+Androd版本：4.2.2
+主屏分辨率：960x540像素
+
+问题：在此手机上出现适配问题如下图：
+![pic_01](https://github.com/JackWaiting/pitfalls-android/blob/master/images_auto.png)
+
+出现的原因：目前只能是猜测，由于手机和分辨率原因，导致下面的布局被拥挤，或某属性在此手机内部支持的可能性。如果大家有接触过类似的问题，欢迎指正。
+
+最终的解决办法：更换其他布局，使用适配性更高的写法。
+***
+
+
+###26，RadioGroup调用check(id)方法时，onCheckedChanged(RadioGroup group, int checkedId)方法被执行多
 多次调用经常会干扰到程序的正常逻辑，导致出现奇怪的问题。最初我会放弃RadioGroup的onCheckedChanged()的监听，而改用它的onClick()事件，但是onClick()又会存在多次点击的问题，依旧不是比较理想的解法。  
 要想让它只回调一次而不是多次，正确的做法应该是：RadioButton.setChecked(true); [Link](http://stackoverflow.com/questions/10263778/radiogroup-calls-oncheckchanged-three-times "Link")   
 
 
-###2，大图片裁剪终极解决方案  
+###25，大图片裁剪终极解决方案  
 APP在Android手机上实现拍照截图这一功能，虽然看起来非常简单，但是网上大多只是Demo水准，用在实际项目中问题漏洞百出，经常导致截取照片时程序异常的BUG。   
 所幸在Google上搜到了一个不错的博客，才完美解决了这个问题。URL：[Android大图片裁剪终极解决方案](http://my.oschina.net/ryanhoo/blog/86842?fromerr=nYvxpdVH)   
 总结一下最关键的原因，**截大图用URI，小图用Bitmap**，网上的Demo几乎都是用的Bitmap，而且并不提及如何使用URI。我们知道，现在的Android智能手机的摄像头都是几百万的像素，拍出来的图片都是非常大的。因此我们截图无论大图小图都要统一使用Uri进行操作。
@@ -31,7 +72,7 @@ APP在Android手机上实现拍照截图这一功能，虽然看起来非常简�
 
 ***
 
-### 1总结如何快速、高效、无错误的修改应用的包名
+### 24.总结如何快速、高效、无错误的修改应用的包名
 android如果想修改包名，如果牵扯到Manifest或者自定义控件带命名空间的。总会出现一些错误，比如，包名错乱、包名缺少、控件和控件交叉在一起。其实是可以避免这样错误的，总结如下：
 
 **eclipse:**	
@@ -47,28 +88,28 @@ android studio很好的解决了这个问题。
 修改好之后，重启启动下studio，在build.gradle里找到application id修改就好了。	
 
 建议使用studio，eclipse修改不方便。很容易出现问题。	
+***
 
-
-### 4.布局优化
+### 23.布局优化
 根据Android源码的分析(具体见文章)，RelativeLayout将对所有的子View进行两次measure，而LinearLayout在使用weight属性进行布局时也会对子View进行两次measure，如果他们位于整个View树的顶端时并可能进行多层的嵌套时，位于底层的View将会进行大量的measure操作，大大降低程序性能。因此，应尽量将RelativeLayout和LinearLayout置于View树的底层，并减少嵌套。  
 配合`<include>`标签(布局重用)、`<merge>`标签(减少层级)、Viewstub(按需加载)。总之，关于布局优化，原则上尽量减少布局文件的层级。
 ***
-### 3.Activity异常导致的资源回收
+### 22.Activity异常导致的资源回收
 在编写代码时将数据放入文件中而不放static变量中，如登录的用户信息放在Sharepreference中，每次直接从其中取值。如果实在需要将数据放入static变量中，如模块信息，需要在activity的onSaveInstanceState执行保存。这样可以保证在执行内存清理后打开应用还能使用onRestoreInstanceState将数据找回。(OnRestoreInstanceState一旦被调用，其参数是一定有值的)。
 
 ***
-### 2.For语句的使用
+### 21.For语句的使用
 ####(1)不要在for的第二个条件中调用任何方法.
 如：```for (int j = 0; j < element.length; j++)
 改为for(int j = 0 , k = element.length; j < k ; j++) ```
 减少执行element.length的次数。
 ####(2)增强for循环.
-能够用于实现了iterable接口的集合类及数组中。在集合类中，迭代器让接口调用hasNext()和next()方法。在ArrayList中，手写的计数循环迭代要快3倍(无论有没有JIT)，但其他集合类中，改进的for循环语法和迭代器具有相同的效率。
+能够用于实现了iterable接口的集合类及数组中。在集合类中，迭代器让接口调用hasNext()和next()方法。在ArrayList中，手写的计数循环迭代要快3倍(无论有没有JIT)，但其他集合类中，改进的for循环语法和迭代器具有相同的效率。    
+***
+### 20.Android 6.0系统注意事项(硬件设备)
+根据Android官方文档：Android 6.0设备通过蓝牙和Wi-Fi扫描访问外部硬件设备时，你的应用需要添加ACCESS_FINE_LOCATION或者ACCESS_COARSE_LOCATION权限。    
 
 ***
-### 1.Android 6.0系统注意事项(硬件设备)
-根据Android官方文档：Android 6.0设备通过蓝牙和Wi-Fi扫描访问外部硬件设备时，你的应用需要添加ACCESS_FINE_LOCATION或者ACCESS_COARSE_LOCATION权限。
-
 ***
 ##一、Wifi灯项目坑总结
 ### 1.radiobutton setChecked(false)后，再setChecked(true)无效，只有先选择其它的radiobutton才会有效。
@@ -220,46 +261,8 @@ ERROR getting 'android:name' attribute: attribute is not a string value
 在我接手的项目里面出现这个问题的原因是，AndroidManiFest 中 activity 的 android:name= 用了@string的模式，这种相关的使用方式导致 aapt 无法识别。
 修改方法就是把 @string 中的字符串复制到 android:name 中，然后使用 aapt 工具跑一下就可以解决问题了。如果重新打包的应用上传的应用商店时还出现错误提示，可以尝试刷新页面。
 
-网上有国外的解决方案是吧 AndroidMainFest中所有 @string 都是用硬编码的方式写到文件里，这里其实并不需要的，只要没有提示 ERROR getting 'android:label' attribute: attribute is not a string value 或者是其他的类似提示，都只要修改 activity 里 android:name 就可以了
+网上有国外的解决方案是吧 AndroidMainFest中所有 @string 都是用硬编码的方式写到文件里，这里其实并不需要的，只要没有提示 ERROR getting 'android:label' attribute: attribute is not a string value 或者是其他的类似提示，都只要修改 activity 里 android:name 就可以了。
 
-##20，Android-G610手机出现的奇怪适配问题
-机名：G610
-Androd版本：4.2.2
-主屏分辨率：960x540像素
 
-问题：在此手机上出现适配问题如下图：
-![pic_01](https://github.com/JackWaiting/pitfalls-android/blob/master/images_auto.png)
 
-出现的原因：目前只能是猜测，由于手机和分辨率原因，导致下面的布局被拥挤，或某属性在此手机内部支持的可能性。如果大家有接触过类似的问题，欢迎指正。
 
-最终的解决办法：更换其他布局，使用适配性更高的写法。
-
-<<<<<<< HEAD
-##22， Android 5月份细节点总结
-1. 一个View，如果既设了padding，又设了paddingTop，那么只有padding生效，paddingTop是无效的。
-
-2. 在开发下载功能的时候，使用Service和DB是用来在activity死掉后，管理和记录下载状态。
-
-3. 可以把ListView的adapter设置为null，这样就只显示ListView的headView，4.0以下也是没有问题的。
-
-4. 要注意这样的问题：ListView的adapter是通过一个list关联其item的，如果子线程会动态修改这个list（即子线程和adapter引用同一个对象，子线程会修改这个对象的值），在滑动ListView的时候就会有异常抛出。
-
-5. 要十分注意数据库降版本的情况。
-
-6. ListView如果布局高度不确定的时候，会计算其或其父控件的高度，所以会造成其getView方法被重复调用的情况。
-
-7. If an activity is paused or stopped, the system can drop it from memory either by asking it to finish (calling its finish() method), or simply killing its process. 
-
-8. 如果ListView没有HeaderView或者FooterView的时候，与ListView相关联的Adapter就是传进来的参数Adapter。如果有，则原来的Adapter将被包装成HeaderViewListAdapter，通过getWrappedAdapter()方法可以获取原来的Adapter。
-
-9.尽量少使用setBackGround()方法设置背景，由于版本问题会引起运行错误;在activity中通过getWindow().setBackgroundDrawable(null);可以减少一个层级。（getWindow().setBackgroundDrawable()还有另外一个用法就是输入法弹下去时背景为黑色，可以通过这个来改为想要的颜色）。
-
-10. 如何让EditText不自动获取焦点？在EditText的父Layout中,加入下面的两个属性即可 : android:focusable="true"，android:focusableInTouchMode="true"。
-=======
-##21, java float类型比较细节 ：
-举个例子    27.2 == 272/10.0;   求输出结果 ;
-一般人第一眼看到肯定觉得很简单 , 返回就是true嘛 ;    当告知你答案是false ,你依然不解,急着在编译器上实践，结果发现真的是false ,为什么呢？
-
-答案是 ： java中直接声明 27.2 默认是为double类型 ; 而272/10.0 返回时一个float类型 ;  double == float 自然返回false ; 
-可换成这个写法  27.2f == 272/10.0 ; 直接声明一个float类型 ;
->>>>>>> main/master
