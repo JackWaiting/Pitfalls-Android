@@ -2,6 +2,23 @@
 
 ***
 
+###30,Android6+系统，变声录音异常的解决办法：
+
+1、权限改变
+
+Android 6.0以前安装应用时就会弹出权限对话框给用户，而Android6.0以后再安装或打开应用时并不会弹出权限对话框，而是在你使用到当前功能（这里指的是录音功能时才会弹出）
+
+2、系统不再支持8bit的编码率
+
+上面已经说了，再低质量语音传输时8bit已经够了，再我们6.0以前使用8bit编码率对大部分的手机录音已经足矣，这里需要解释一下编码率到底是啥：
+
+要算一个PCM音频流的码率是一件很轻松的事情，采样率值×采样大小值×声道数bps。一个采样率为44.1KHz，采样大小为16bit，双声道的PCM编码的WAV文件，它的数据速率则为 44.1K×16×2 =1411.2 Kbps。我们常说128K的MP3，对应的WAV的参数，就是这个1411.2 Kbps，这个参数也被称为数据带宽，它和ADSL中的带宽是一个概念。将码率除以8,就可以得到这个WAV的数据速率，即176.4KB/s。这表示存储一秒钟采样率为44.1KHz，采样大小为16bit，双声道的PCM编码的音频信号，需要176.4KB的空间，1分钟则约为10.34M，这对大部分用户是不可接受的。
+
+所以有很多人为了再带宽上优化，增加采样率肯定是不可取的，所以就把16bit改成8bit，而对Andorid 6.0以前的影响并不会很大，但是在6.0以后，你再使用8bit就会出现异常了，这点一定要注意。
+
+具体内容见：[Link](http://blog.csdn.net/zhanggang740/article/details/51613983 "Link")   
+
+
 ###1，RadioGroup调用check(id)方法时，onCheckedChanged(RadioGroup group, int checkedId)方法被执行多
 多次调用经常会干扰到程序的正常逻辑，导致出现奇怪的问题。最初我会放弃RadioGroup的onCheckedChanged()的监听，而改用它的onClick()事件，但是onClick()又会存在多次点击的问题，依旧不是比较理想的解法。  
 要想让它只回调一次而不是多次，正确的做法应该是：RadioButton.setChecked(true); [Link](http://stackoverflow.com/questions/10263778/radiogroup-calls-oncheckchanged-three-times "Link")   
