@@ -107,7 +107,9 @@ android studio很好的解决了这个问题。
 能够用于实现了iterable接口的集合类及数组中。在集合类中，迭代器让接口调用hasNext()和next()方法。在ArrayList中，手写的计数循环迭代要快3倍(无论有没有JIT)，但其他集合类中，改进的for循环语法和迭代器具有相同的效率。    
 ***
 ### 20.Android 6.0系统注意事项(硬件设备)
-根据Android官方文档：Android 6.0设备通过蓝牙和Wi-Fi扫描访问外部硬件设备时，你的应用需要添加ACCESS_FINE_LOCATION或者ACCESS_COARSE_LOCATION权限。    
+根据Android官方文档：Android 6.0设备通过蓝牙和Wi-Fi扫描访问外部硬件设备时，你的应用需要添加ACCESS_FINE_LOCATION或者ACCESS_COARSE_LOCATION权限。
+ 
+**注意: 这两个权限在手机上提示为定位权限,用户看到扫描的时候提示是否允许定位很有可能会拒接,拒接后是扫描不到外部硬件的   **
 
 ***
 以下为正序，以上为倒序。
