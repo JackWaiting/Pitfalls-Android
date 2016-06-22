@@ -1,5 +1,36 @@
 # pitfalls-android
 
+###31,百度加固后，运行再小米2S等低版本手机会出现崩溃的问题。
+	
+
+现象：在小米2S中，一旦通过百度加固后，就会出现崩溃。
+解决办法：通过逐步排查，发现只有是在Android Studio的项目中才会出现，通过二次排查，发现是在我们的gradle中配置了 android:debuggable = true 就会导致运行崩溃。但通过资料调研后，发现	android:debuggable = true与百度加密的崩溃并不会有直接关系，通过排除法再次分析，认为问题只可能出现在百度加固的这个过程中了。联系百度技术人员后，百度人员成功复现，并给出的解释为：
+
+在mi2s上失败的原因，是因为mi2s集成了Lbe，lbe会在应用启动的时候注入应用进程，它的行为和百度加固的逻辑有冲突
+Lbe要获取你们dex里的类，加固过后，他获取的时候，你们的dex里的类还没有被壳加载起来
+之前lbe的问题我们联系了他们，他们不维护了，只能我们做兼容。
+
+通过一波多折的多次迭代过后，测试通过。最终确定问题为百度加固过程中的不兼容性导致小米2S的手机崩溃。后续如果遇到此类问题，首先需要调试我们程序中的debuggable;确认不是程序问题后，及时沟通第三方人员。
+
+***
+
+###30,Android6+系统，变声录音异常的解决办法：
+
+1、权限改变
+
+Android 6.0以前安装应用时就会弹出权限对话框给用户，而Android6.0以后再安装或打开应用时并不会弹出权限对话框，而是在你使用到当前功能（这里指的是录音功能时才会弹出）
+
+2、系统不再支持8bit的编码率
+
+上面已经说了，再低质量语音传输时8bit已经够了，再我们6.0以前使用8bit编码率对大部分的手机录音已经足矣，这里需要解释一下编码率到底是啥：
+
+要算一个PCM音频流的码率是一件很轻松的事情，采样率值×采样大小值×声道数bps。一个采样率为44.1KHz，采样大小为16bit，双声道的PCM编码的WAV文件，它的数据速率则为 44.1K×16×2 =1411.2 Kbps。我们常说128K的MP3，对应的WAV的参数，就是这个1411.2 Kbps，这个参数也被称为数据带宽，它和ADSL中的带宽是一个概念。将码率除以8,就可以得到这个WAV的数据速率，即176.4KB/s。这表示存储一秒钟采样率为44.1KHz，采样大小为16bit，双声道的PCM编码的音频信号，需要176.4KB的空间，1分钟则约为10.34M，这对大部分用户是不可接受的。
+
+所以有很多人为了再带宽上优化，增加采样率肯定是不可取的，所以就把16bit改成8bit，而对Andorid 6.0以前的影响并不会很大，但是在6.0以后，你再使用8bit就会出现异常了，这点一定要注意。
+
+具体内容见：[android AudioRecord介绍与Android 6.0后的改变](http://blog.csdn.net/zhanggang740/article/details/51613983 "Link")   
+
+
 ***
 ###29， Android 5月份细节点总结
 1. 一个View，如果既设了padding，又设了paddingTop，那么只有padding生效，paddingTop是无效的。
@@ -44,6 +75,7 @@ Androd版本：4.2.2
 
 
 ###26，RadioGroup调用check(id)方法时，onCheckedChanged(RadioGroup group, int checkedId)方法被执行多
+
 多次调用经常会干扰到程序的正常逻辑，导致出现奇怪的问题。最初我会放弃RadioGroup的onCheckedChanged()的监听，而改用它的onClick()事件，但是onClick()又会存在多次点击的问题，依旧不是比较理想的解法。  
 要想让它只回调一次而不是多次，正确的做法应该是：RadioButton.setChecked(true); [Link](http://stackoverflow.com/questions/10263778/radiogroup-calls-oncheckchanged-three-times "Link")   
 
@@ -107,7 +139,7 @@ android studio很好的解决了这个问题。
 能够用于实现了iterable接口的集合类及数组中。在集合类中，迭代器让接口调用hasNext()和next()方法。在ArrayList中，手写的计数循环迭代要快3倍(无论有没有JIT)，但其他集合类中，改进的for循环语法和迭代器具有相同的效率。    
 ***
 ### 20.Android 6.0系统注意事项(硬件设备)
-根据Android官方文档：Android 6.0设备通过蓝牙和Wi-Fi扫描访问外部硬件设备时，你的应用需要添加ACCESS_FINE_LOCATION或者ACCESS_COARSE_LOCATION权限。
+根据Android官方文档：Android 6.0设备通过蓝牙和Wi-Fi扫描访问外部硬件设备时，你的应用需要添加ACCESS_FINE_LOCATION或者ACCESS_COARSE_LOCATION权限。    
  
 **注意: 这两个权限在手机上提示为定位权限,用户看到扫描的时候提示是否允许定位很有可能会拒接,拒接后是扫描不到外部硬件的   **
 
