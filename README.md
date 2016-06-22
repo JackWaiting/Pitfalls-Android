@@ -30,6 +30,7 @@ Android 6.0以前安装应用时就会弹出权限对话框给用户，而Androi
 
 具体内容见：[android AudioRecord介绍与Android 6.0后的改变](http://blog.csdn.net/zhanggang740/article/details/51613983 "Link")   
 
+
 ***
 ###29， Android 5月份细节点总结
 1. 一个View，如果既设了padding，又设了paddingTop，那么只有padding生效，paddingTop是无效的。
@@ -71,6 +72,7 @@ Androd版本：4.2.2
 
 最终的解决办法：更换其他布局，使用适配性更高的写法。
 ***
+
 
 ###26，RadioGroup调用check(id)方法时，onCheckedChanged(RadioGroup group, int checkedId)方法被执行多
 
@@ -138,6 +140,8 @@ android studio很好的解决了这个问题。
 ***
 ### 20.Android 6.0系统注意事项(硬件设备)
 根据Android官方文档：Android 6.0设备通过蓝牙和Wi-Fi扫描访问外部硬件设备时，你的应用需要添加ACCESS_FINE_LOCATION或者ACCESS_COARSE_LOCATION权限。    
+ 
+**注意: 这两个权限在手机上提示为定位权限,用户看到扫描的时候提示是否允许定位很有可能会拒接,拒接后是扫描不到外部硬件的   **
 
 ***
 以下为正序，以上为倒序。
