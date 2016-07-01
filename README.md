@@ -1,5 +1,42 @@
 # pitfalls-android
 
+###34,LinearGradient水平或垂直渲染
+
+在所有的Demo中看到的LinearGradient 渲染的效果都是从左上渲染到右下，那么要怎样调整渲染角度呢。构造如下： 
+ 
+	public LinearGradient (float x0, float y0, float x1, float y1, int[] colors, float[] positions, Shader.TileMode tile);   
+
+- 水平渲染：x0和x1的值相同
+- 垂直渲染：y0和y1的值相同
+- 其它角度根据调节x、y的值来转变
+
+###33,Matrix.setRotate(float degrees, float px, float py)注意
+	
+- degrees 旋转的角度
+- px    旋转的X轴坐标，**X为Bitmap的相对坐标**
+- py    旋转的Y轴坐标，**Y为Bitmap的相对坐标**
+
+例如要以图片的左下角为重心旋转90度，代码为：matrix.setRotate(90, 0, bitamp.getHeight())  
+
+###32,java.lang.IllegalStateException: Can not perform this action after onSaveInstanceState异常
+	
+
+异常以及其解决方法如下：  
+1，getSupportFragmentManager().beginTransaction().commit()方法在Activity的onSaveInstanceState()之后调用    
+    解决方法：把commit（）方法替换成 commitAllowingStateLoss()  
+
+2，getSupportFragmentManager().popBackStackImmediate()方法在Activity的onSaveInstanceState()之后调用    
+    解决方法：延迟处理在Activity的onResume()方法中执行该方法  
+
+注：onSaveInstanceState方法执行的时间（与onRestoreInstanceState方法“不一定”是成对的被调用）：   
+1、当用户按下HOME键时。  
+2、长按HOME键，选择运行其他的程序时。  
+3、按下电源按键（关闭屏幕显示）时。  
+4、从activity A中启动一个新的activity时。  
+5、屏幕方向切换时，例如从竖屏切换到横屏时。  
+
+***
+
 ###31,百度加固后，运行再小米2S等低版本手机会出现崩溃的问题。
 	
 
