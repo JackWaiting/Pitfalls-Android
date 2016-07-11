@@ -1,17 +1,24 @@
 # pitfalls-android
 ###35.关于使用AlarmManager设置闹钟延时的问题。
-*问题*：部分手机设置闹钟时，存在延时的情况。    
-*问题原因：*自从Android API 19(也就是Android4.4系统)开始，触发设置的系统闹钟时间是不准确的:可以保证的是闹钟不会提前触发，但有可能会延迟一些时间。Android 操作系统之所以使用这种策略，是因为要批量去唤醒系统闹钟，最大限度地减少唤醒设备的次数，以更有效的节省电量。    
+**问题**：    
+部分手机设置闹钟时，存在延时的情况。    
+**问题原因：**    
+自从Android API 19(也就是Android4.4系统)开始，触发设置的系统闹钟时间是不准确的:可以保证的是闹钟不会提前触发，但有可能会延迟一些时间。Android 操作系统之所以使用这种策略，是因为要批量去唤醒系统闹钟，最大限度地减少唤醒设备的次数，以更有效的节省电量。    
 
 也就是说目前Android 系统本身基于一些考虑，对系统闹钟的设置做了一些优化调整。不过Android 4.4系统之前的手机应该不存在此类问题。    
-*解决方案*：代码如下：    
-` if (apiLevel >= 19) {
-		      alarmManager.setExact(type, triggerAtMillis, pendingIntent);
-		    } else {
-		      alarmManager.set(type, triggerAtMillis, pendingIntent);
-		    }    
-*参考官方文档*        
-[https://developer.android.com/reference/android/app/AlarmManager.html](https://developer.android.com/reference/android/app/AlarmManager.html)    
+
+**解决方案**：    
+代码如下：    
+    
+    if (apiLevel >= 19) {    
+        alarmManager.setExact(type, triggerAtMillis, pendingIntent);
+    } else {
+	    alarmManager.set(type, triggerAtMillis, pendingIntent);
+    }  
+		    
+**参考官方文档**        
+[https://developer.android.com/reference/android/app/AlarmManager.html](https://developer.android.com/reference/android/app/AlarmManager.html)
+    
 
 ###35,Android 6月份细节点分享
 1.全部Activity可继承BaseActivity，便于统一风格与处理公共事件，构建对话框统一构建器的简历，万一需要整体变动，一处修改到处有效。
