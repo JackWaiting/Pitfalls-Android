@@ -1,4 +1,37 @@
 # pitfalls-android
+
+###38.APP启动闪黑屏的解决办法    
+在启动APP时，由于Activity需要跑完onCreate和onResume才会显示界面，就会导致闪黑/白屏。即便是把初始化的工作尽量减少，但由于解析界面还是需要一定时间，黑屏也还是会存在。可以通过下面两种方式尽量减少黑屏的出现：
+
+	// 1,设置背景图Theme
+	<style name="Theme.AppStartLoad" parent="android:Theme">  
+	    <item name="android:windowBackground">@drawable/bg</item>  
+	    <item name="android:windowNoTitle">true</item>  
+	</style>
+	// 2,设置透明Theme
+	<style name="Theme.AppStartLoadTranslucent" parent="android:Theme">  
+	    <item name="android:windowIsTranslucent">true</item> 
+	    <item name="android:windowNoTitle">true</item>  
+	</style>
+第一种方式的启动快，界面先显示背景图，然后再刷新其他界面控件，给人刷新不同步感觉。    
+第二种方式给人程序启动慢感觉，界面一次性刷出来，刷新同步。
+
+
+###37.WebView关闭后，音乐不停的解法方法 
+在WebView关闭后，发现音乐还在后台播放，调用“webView.onPause()”也并没有什么用。     
+有效的解决方法，第一种是可以加载一个空白页：
+
+	webView.loadUrl("about:blank");
+但是下次打开时WebView默认加载的是一个空白页，效果不是很理想，那就调用重新加载页面吧：
+
+	webView.reload();
+
+
+###36.Zxing很难识别扫描到的二维码的问题
+在GitHub上下载了一个二维码扫描的Demo，但用来识别自己屏幕上的二维码时发现怎么也识别不出来，但是用其它的二维码扫描工具很快就识别出来了。      
+最后发现是设置了一个比较低分辨率的图片去解析导致的，将分辨率调高后问题就解决了。
+
+
 ###35.关于使用AlarmManager设置闹钟延时的问题。
 **问题**：    
 部分手机设置闹钟时，存在延时的情况。    
