@@ -1,6 +1,43 @@
 # pitfalls-android
 
-###38.APP启动闪黑屏的解决办法    
+###41.部分华为6.0系统手机闹钟锁屏以及延时的问题总结：
+
+通过调试和现象确认，在华为Mate8，P9上确实会概率性出现一键桌面锁屏后闹钟不响（需唤醒屏幕），以及闹钟延时的问题。
+针对这一问题，我们通过Log初步排查，首先排除是固件问题，通过观察测试demo的情况，排除了APP逻辑问题。
+其次，通过debug、log日志排查，排除了APP端问题。
+
+通过以上排除法，以及在小米、魅族、Nexus上运行的现象，最终确定此问题为华为Android 6.0定制系统所造成的问题，设置
+闹钟后，华为Android 6.0定制系统的安全软件以及手机为了保护电量与安全等，会选择性暂停一些服务，其中包括我们的闹钟服务。
+	
+###40.Butterknife:8.2.1后运行导致的空指针问题
+Butterknife:8.2.1相对于原来的Butterknife:7.1.0来说，使用起来更方便，效率上也有一定的提升，但是在使用的过程中要注意：
+Butterknife:8.2.1之后引用了“android-apt”这个插件，我们在使用的过程中也必须引用，否则在调用其注解下的View时会报空指针异常。
+解决办法：
+
+	1、第一步
+	buildscript {
+  		repositories {
+    	mavenCentral()
+   	}
+  	dependencies {
+    	classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+  		}
+	}
+	2、第二步
+	apply plugin: 'android-apt'
+
+	android {
+ 	 ...
+	}
+
+	dependencies {
+  		compile 'com.jakewharton:butterknife:8.2.1'
+  		apt 'com.jakewharton:butterknife-compiler:8.2.1'
+	}
+
+提示：如果不引用android-apt也能使用，但是会有异常。
+
+###39.APP启动闪黑屏的解决办法    
 在启动APP时，由于Activity需要跑完onCreate和onResume才会显示界面，就会导致闪黑/白屏。即便是把初始化的工作尽量减少，但由于解析界面还是需要一定时间，黑屏也还是会存在。可以通过下面两种方式尽量减少黑屏的出现：
 
 	// 1,设置背景图Theme
@@ -17,7 +54,7 @@
 第二种方式给人程序启动慢感觉，界面一次性刷出来，刷新同步。
 
 
-###37.WebView关闭后，音乐不停的解法方法 
+###38.WebView关闭后，音乐不停的解法方法 
 在WebView关闭后，发现音乐还在后台播放，调用“webView.onPause()”也并没有什么用。     
 有效的解决方法，第一种是可以加载一个空白页：
 
@@ -27,12 +64,12 @@
 	webView.reload();
 
 
-###36.Zxing很难识别扫描到的二维码的问题
+###37.Zxing很难识别扫描到的二维码的问题
 在GitHub上下载了一个二维码扫描的Demo，但用来识别自己屏幕上的二维码时发现怎么也识别不出来，但是用其它的二维码扫描工具很快就识别出来了。      
 最后发现是设置了一个比较低分辨率的图片去解析导致的，将分辨率调高后问题就解决了。
 
 
-###35.关于使用AlarmManager设置闹钟延时的问题。
+###36.关于使用AlarmManager设置闹钟延时的问题。
 **问题**：    
 部分手机设置闹钟时，存在延时的情况。    
 **问题原因：**    
