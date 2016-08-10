@@ -1,5 +1,208 @@
 # pitfalls-android
 
+###42.Android七月份细节点分享
+1.与Activity通讯使用Handler更方便；如果你的框架回调链变长，考虑监听者模式简化回调。
+
+2.有序队列操作add、delete操作时，注意保持排序，否则你会比较难堪哦。
+
+3.数据库删除数据时，要注意级联操作避免出现永远删除不了的垃圾数据。
+
+4.关于形参实参：调用函数时参数为基本类型传的是值，即传值；参数为对象传递的是引用，即传址。
+
+5.listview在数据未满一屏时，setSelection函数不起作用；ListView批量操作时各子项和视图正确对应，可见即所选。
+
+6.setSelection不起作用尝试smoothScroollToPosition. ListView的LastVisiblePosition（最后一个可见项）会随着getView方法执行位置不同变动而变动。
+
+7.控制Activity的代码量，保持主要逻辑清晰，其它类保持遵守SRP（单一职责），ISP（接口隔离）原则。
+
+8.arraylist执行remove时注意移除int和Integer的区别。
+
+9.Log请打上Tag，调试打印一定要做标记，能定位打印位置，否则尴尬的是：不知道是哪里在打印。
+
+10.代码块/常量/资源可以集中公用的一定公用，即使公用逻辑稍微复杂一点也会值得，修改起来很轻松，修改一种，到处有效。
+
+###41.部分华为6.0系统手机闹钟锁屏以及延时的问题总结：
+
+通过调试和现象确认，在华为Mate8，P9上确实会概率性出现一键桌面锁屏后闹钟不响（需唤醒屏幕），以及闹钟延时的问题。
+针对这一问题，我们通过Log初步排查，首先排除是固件问题，通过观察测试demo的情况，排除了APP逻辑问题。
+其次，通过debug、log日志排查，排除了APP端问题。
+
+通过以上排除法，以及在小米、魅族、Nexus上运行的现象，最终确定此问题为华为Android 6.0定制系统所造成的问题，设置
+闹钟后，华为Android 6.0定制系统的安全软件以及手机为了保护电量与安全等，会选择性暂停一些服务，其中包括我们的闹钟服务。
+	
+###40.Butterknife:8.2.1后运行导致的空指针问题
+Butterknife:8.2.1相对于原来的Butterknife:7.1.0来说，使用起来更方便，效率上也有一定的提升，但是在使用的过程中要注意：
+Butterknife:8.2.1之后引用了“android-apt”这个插件，我们在使用的过程中也必须引用，否则在调用其注解下的View时会报空指针异常。
+解决办法：
+
+	1、第一步
+	buildscript {
+  		repositories {
+    	mavenCentral()
+   	}
+  	dependencies {
+    	classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+  		}
+	}
+	2、第二步
+	apply plugin: 'android-apt'
+
+	android {
+ 	 ...
+	}
+
+	dependencies {
+  		compile 'com.jakewharton:butterknife:8.2.1'
+  		apt 'com.jakewharton:butterknife-compiler:8.2.1'
+	}
+
+提示：如果不引用android-apt也能使用，但是会有异常。
+
+###39.APP启动闪黑屏的解决办法    
+在启动APP时，由于Activity需要跑完onCreate和onResume才会显示界面，就会导致闪黑/白屏。即便是把初始化的工作尽量减少，但由于解析界面还是需要一定时间，黑屏也还是会存在。可以通过下面两种方式尽量减少黑屏的出现：
+
+	// 1,设置背景图Theme
+	<style name="Theme.AppStartLoad" parent="android:Theme">  
+	    <item name="android:windowBackground">@drawable/bg</item>  
+	    <item name="android:windowNoTitle">true</item>  
+	</style>
+	// 2,设置透明Theme
+	<style name="Theme.AppStartLoadTranslucent" parent="android:Theme">  
+	    <item name="android:windowIsTranslucent">true</item> 
+	    <item name="android:windowNoTitle">true</item>  
+	</style>
+第一种方式的启动快，界面先显示背景图，然后再刷新其他界面控件，给人刷新不同步感觉。    
+第二种方式给人程序启动慢感觉，界面一次性刷出来，刷新同步。
+
+
+###38.WebView关闭后，音乐不停的解法方法 
+在WebView关闭后，发现音乐还在后台播放，调用“webView.onPause()”也并没有什么用。     
+有效的解决方法，第一种是可以加载一个空白页：
+
+	webView.loadUrl("about:blank");
+但是下次打开时WebView默认加载的是一个空白页，效果不是很理想，那就调用重新加载页面吧：
+
+	webView.reload();
+
+
+###37.Zxing很难识别扫描到的二维码的问题
+在GitHub上下载了一个二维码扫描的Demo，但用来识别自己屏幕上的二维码时发现怎么也识别不出来，但是用其它的二维码扫描工具很快就识别出来了。      
+最后发现是设置了一个比较低分辨率的图片去解析导致的，将分辨率调高后问题就解决了。
+
+
+###36.关于使用AlarmManager设置闹钟延时的问题。
+**问题**：    
+部分手机设置闹钟时，存在延时的情况。    
+**问题原因：**    
+自从Android API 19(也就是Android4.4系统)开始，触发设置的系统闹钟时间是不准确的:可以保证的是闹钟不会提前触发，但有可能会延迟一些时间。Android 操作系统之所以使用这种策略，是因为要批量去唤醒系统闹钟，最大限度地减少唤醒设备的次数，以更有效的节省电量。    
+
+也就是说目前Android 系统本身基于一些考虑，对系统闹钟的设置做了一些优化调整。不过Android 4.4系统之前的手机应该不存在此类问题。    
+
+**解决方案**：    
+代码如下：    
+    
+    if (apiLevel >= 19) {    
+        alarmManager.setExact(type, triggerAtMillis, pendingIntent);
+    } else {
+	    alarmManager.set(type, triggerAtMillis, pendingIntent);
+    }  
+		    
+**参考官方文档**        
+[https://developer.android.com/reference/android/app/AlarmManager.html](https://developer.android.com/reference/android/app/AlarmManager.html)
+    
+
+###35,Android 6月份细节点分享
+1.全部Activity可继承BaseActivity，便于统一风格与处理公共事件，构建对话框统一构建器的简历，万一需要整体变动，一处修改到处有效。
+
+2.数据库表字段常量和SQL逻辑分离，更清晰，建议使用Lite系列框架LiteOrm库，超级清晰且重心可以放在业务上，不用关心数据库细节。
+
+3.全局变量放全局类中，私有模块放在自己的常量清晰且集中。
+
+4.不要相信庞大的管理类的东西会带来什么好处，可能是一场灾难，而要时刻注意单一职责原则，一个类专心做好一件事情更为清晰。
+
+5.如果数据没有加载的必要，数据请务必延迟初始化，谨记为用户节省内存，总不会有坏处。
+
+6.异常抛出，在合适的位置处理或者集中处理，不要搞得到处都是catch，混乱且性能低，尽量不要在循环中捕获异常，以提升性能。
+
+7.地址引用链长时（三个以上指向）小心内存泄漏，和警惕堆栈地址指向，典型的易发事件是：数据更新了，ListView视图却没有刷新，这时Adapter很可能指向的并不是你更新的数据容器地址。
+
+8.信息同步：不管是数据库还是网络操作，新插入的数据注意返回ID（如果没有赋予唯一ID），否则相当于没有同步。
+
+9.多线程操作数据库时，db关闭了会报错，也很有可能出现互锁的问题，推荐使用事务。
+
+10.做之前先考虑那些可以公用，资源，layout，类，做一个结构、架构分析以加快开发，提升代码的可复用度。
+
+
+***
+
+###34,LinearGradient水平或垂直渲染
+
+在所有的Demo中看到的LinearGradient 渲染的效果都是从左上渲染到右下，那么要怎样调整渲染角度呢。构造如下： 
+ 
+	public LinearGradient (float x0, float y0, float x1, float y1, int[] colors, float[] positions, Shader.TileMode tile);   
+
+- 水平渲染：x0和x1的值相同
+- 垂直渲染：y0和y1的值相同
+- 其它角度根据调节x、y的值来转变
+
+###33,Matrix.setRotate(float degrees, float px, float py)注意
+	
+- degrees 旋转的角度
+- px    旋转的X轴坐标，**X为Bitmap的相对坐标**
+- py    旋转的Y轴坐标，**Y为Bitmap的相对坐标**
+
+例如要以图片的左下角为重心旋转90度，代码为：matrix.setRotate(90, 0, bitamp.getHeight())  
+
+###32,java.lang.IllegalStateException: Can not perform this action after onSaveInstanceState异常
+	
+
+异常以及其解决方法如下：  
+1，getSupportFragmentManager().beginTransaction().commit()方法在Activity的onSaveInstanceState()之后调用    
+    解决方法：把commit（）方法替换成 commitAllowingStateLoss()  
+
+2，getSupportFragmentManager().popBackStackImmediate()方法在Activity的onSaveInstanceState()之后调用    
+    解决方法：延迟处理在Activity的onResume()方法中执行该方法  
+
+注：onSaveInstanceState方法执行的时间（与onRestoreInstanceState方法“不一定”是成对的被调用）：   
+1、当用户按下HOME键时。  
+2、长按HOME键，选择运行其他的程序时。  
+3、按下电源按键（关闭屏幕显示）时。  
+4、从activity A中启动一个新的activity时。  
+5、屏幕方向切换时，例如从竖屏切换到横屏时。  
+
+***
+
+###31,百度加固后，运行再小米2S等低版本手机会出现崩溃的问题。
+	
+
+现象：在小米2S中，一旦通过百度加固后，就会出现崩溃。
+解决办法：通过逐步排查，发现只有是在Android Studio的项目中才会出现，通过二次排查，发现是在我们的gradle中配置了 android:debuggable = true 就会导致运行崩溃。但通过资料调研后，发现	android:debuggable = true与百度加密的崩溃并不会有直接关系，通过排除法再次分析，认为问题只可能出现在百度加固的这个过程中了。联系百度技术人员后，百度人员成功复现，并给出的解释为：
+
+在mi2s上失败的原因，是因为mi2s集成了Lbe，lbe会在应用启动的时候注入应用进程，它的行为和百度加固的逻辑有冲突
+Lbe要获取你们dex里的类，加固过后，他获取的时候，你们的dex里的类还没有被壳加载起来
+之前lbe的问题我们联系了他们，他们不维护了，只能我们做兼容。
+
+通过一波多折的多次迭代过后，测试通过。最终确定问题为百度加固过程中的不兼容性导致小米2S的手机崩溃。后续如果遇到此类问题，首先需要调试我们程序中的debuggable;确认不是程序问题后，及时沟通第三方人员。
+
+***
+
+###30,Android6+系统，变声录音异常的解决办法：
+
+1、权限改变
+
+Android 6.0以前安装应用时就会弹出权限对话框给用户，而Android6.0以后再安装或打开应用时并不会弹出权限对话框，而是在你使用到当前功能（这里指的是录音功能时才会弹出）
+
+2、系统不再支持8bit的编码率
+
+上面已经说了，再低质量语音传输时8bit已经够了，再我们6.0以前使用8bit编码率对大部分的手机录音已经足矣，这里需要解释一下编码率到底是啥：
+
+要算一个PCM音频流的码率是一件很轻松的事情，采样率值×采样大小值×声道数bps。一个采样率为44.1KHz，采样大小为16bit，双声道的PCM编码的WAV文件，它的数据速率则为 44.1K×16×2 =1411.2 Kbps。我们常说128K的MP3，对应的WAV的参数，就是这个1411.2 Kbps，这个参数也被称为数据带宽，它和ADSL中的带宽是一个概念。将码率除以8,就可以得到这个WAV的数据速率，即176.4KB/s。这表示存储一秒钟采样率为44.1KHz，采样大小为16bit，双声道的PCM编码的音频信号，需要176.4KB的空间，1分钟则约为10.34M，这对大部分用户是不可接受的。
+
+所以有很多人为了再带宽上优化，增加采样率肯定是不可取的，所以就把16bit改成8bit，而对Andorid 6.0以前的影响并不会很大，但是在6.0以后，你再使用8bit就会出现异常了，这点一定要注意。
+
+具体内容见：[android AudioRecord介绍与Android 6.0后的改变](http://blog.csdn.net/zhanggang740/article/details/51613983 "Link")   
+
+
 ***
 ###29， Android 5月份细节点总结
 1. 一个View，如果既设了padding，又设了paddingTop，那么只有padding生效，paddingTop是无效的。
@@ -44,6 +247,7 @@ Androd版本：4.2.2
 
 
 ###26，RadioGroup调用check(id)方法时，onCheckedChanged(RadioGroup group, int checkedId)方法被执行多
+
 多次调用经常会干扰到程序的正常逻辑，导致出现奇怪的问题。最初我会放弃RadioGroup的onCheckedChanged()的监听，而改用它的onClick()事件，但是onClick()又会存在多次点击的问题，依旧不是比较理想的解法。  
 要想让它只回调一次而不是多次，正确的做法应该是：RadioButton.setChecked(true); [Link](http://stackoverflow.com/questions/10263778/radiogroup-calls-oncheckchanged-three-times "Link")   
 
@@ -107,7 +311,7 @@ android studio很好的解决了这个问题。
 能够用于实现了iterable接口的集合类及数组中。在集合类中，迭代器让接口调用hasNext()和next()方法。在ArrayList中，手写的计数循环迭代要快3倍(无论有没有JIT)，但其他集合类中，改进的for循环语法和迭代器具有相同的效率。    
 ***
 ### 20.Android 6.0系统注意事项(硬件设备)
-根据Android官方文档：Android 6.0设备通过蓝牙和Wi-Fi扫描访问外部硬件设备时，你的应用需要添加ACCESS_FINE_LOCATION或者ACCESS_COARSE_LOCATION权限。
+根据Android官方文档：Android 6.0设备通过蓝牙和Wi-Fi扫描访问外部硬件设备时，你的应用需要添加ACCESS_FINE_LOCATION或者ACCESS_COARSE_LOCATION权限。    
  
 **注意: 这两个权限在手机上提示为定位权限,用户看到扫描的时候提示是否允许定位很有可能会拒接,拒接后是扫描不到外部硬件的   **
 
