@@ -84,6 +84,10 @@ Butterknife:8.2.1之后引用了“android-apt”这个插件，我们在使用�
 
 	webView.reload();
 
+第二种解决方法(在webView关闭之前销毁) ：
+
+	webView.onDestory();
+	
 
 ###37.Zxing很难识别扫描到的二维码的问题
 在GitHub上下载了一个二维码扫描的Demo，但用来识别自己屏幕上的二维码时发现怎么也识别不出来，但是用其它的二维码扫描工具很快就识别出来了。      
