@@ -1,5 +1,53 @@
 # pitfalls-android
 
+###43.[Android设备从相册选择图片会旋转问题完美解决](http://blog.csdn.net/lyhhj/article/details/48995065)
+问题说明：项目中有上传图片的功能，那么涉及到拍照，从相册中选择图片，别的手机都ok没有问题，唯独三星的手机拍照之后，你会很清楚的看到会把照片旋转一下，然后你根据路径找到的图片就是已经被旋转的了;
+只要在从相册中选择到照片之后获取旋转角度,然后旋转图片就完美解决了.
+代码如下 ：
+先获取到照片的旋转角度 ;	
+	/** 
+     * 读取照片exif信息中的旋转角度 
+     * @param path 照片路径 
+     * @return角度 
+     */  
+    public static int readPictureDegree(String path) {  
+        int degree  = 0;  
+        try {  
+            ExifInterface exifInterface = new ExifInterface(path);  
+            int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);  
+            switch (orientation) {  
+                case ExifInterface.ORIENTATION_ROTATE_90:  
+                    degree = 90;  
+                    break;  
+                case ExifInterface.ORIENTATION_ROTATE_180:  
+                    degree = 180;  
+                    break;  
+                case ExifInterface.ORIENTATION_ROTATE_270:  
+                    degree = 270;  
+                    break;  
+            }  
+        } catch (IOException e) {  
+            e.printStackTrace();  
+        }  
+        return degree;  
+    }  
+然后我们只需要根据旋转角度将图片旋转过来就OK了
+	
+	/**
+	 * 旋转图片
+	 * @img 需要旋转的 图片
+	 * @rotate 旋转的角度
+	 * */
+	public static Bitmap rotateBitmap(Bitmap img, int rotate) {
+		Matrix matrix = new Matrix();
+		matrix.postRotate(rotate); /* 翻转90度 */
+		int width = img.getWidth();
+		int height = img.getHeight();
+		img = Bitmap.createBitmap(img, 0, 0, width, height, matrix, true);
+		return img;
+	}
+
+
 ###42.Android七月份细节点分享
 1.与Activity通讯使用Handler更方便；如果你的框架回调链变长，考虑监听者模式简化回调。
 
