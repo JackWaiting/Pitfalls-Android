@@ -42,7 +42,7 @@
 	 * */
 	public static Bitmap rotateBitmap(Bitmap img, int rotate) {
 		Matrix matrix = new Matrix();
-		matrix.postRotate(rotate); /* 翻转90度 */
+		matrix.postRotate(rotate);
 		int width = img.getWidth();
 		int height = img.getHeight();
 		img = Bitmap.createBitmap(img, 0, 0, width, height, matrix, true);
