@@ -1,10 +1,12 @@
 # pitfalls-android
 
 ###44.ListView , GridView OnItemClickListener事件无响应
-分析: 
+分析:  
 在Android软件设计与实现中我们通常都会使用到ListView这个控件,系统有一些预置的Adapter可以使用,例如SimpleAdapter和ArrayAdapter,但是总是会有一些情况我们需要通过自定义ListView来实现一些效果,那么在这个时候,我们通常会碰到自定义ListView无法选中整个ListViewItem的情况,也就是无法响应ListView的onItemClickListener中的onItemClick()方法
-解决方法:
+
+解决方法:  
 可以通过对Item Layout的根控件设置其android:descendantFocusability=”blocksDescendants” , 这样Item Layout就屏蔽了所有子控件获取Focus的权限
+
 注意：这个属性不能设置给ListView，设置了也不起作用 ; 
 
 ###43.[三星手机从相册选择图片会旋转问题完美解决](http://blog.csdn.net/lyhhj/article/details/48995065)
