@@ -1,5 +1,24 @@
 # pitfalls-android
 
+###[45.Android Jackson、Gson、FastJson解析框架总结](http://blog.csdn.net/zhanggang740/article/details/52278373)
+1、比较来说, Gson 比 fastjson 考虑更全面, 对用 URL , UUID, BIT_SET, CALENDAR 等等,都有特定的输出规则.
+ 
+2、小数量的调用 Gson 比 fastjson 快一点. (几十毫秒,可以毫不在意.猜测是因为 javassist 生成新的 Wrapper 类导致,因为还要编译的.)
+ 
+3、大数量的调用 fastjson 比 Gson 快. (千万级别的.还不太确定为什么会变快, 猜测是 gson 的反射调用,毕竟比不上 fastjson Wrapper 类的真实调用.)
+
+4、代码可阅读性: fastjson 比 Gson 好很多很多.
+ 
+5、fastjson 在要序列化对象的类型的判断上,使用的是 if else 。
+ 
+6、Gson 使用的是遍历 TypeAdapterFactory集合,在每个 TypeAdapterFactory 里面做判断.而且使用了 N 多的匿名内部类, 想要一眼看出有哪些 TypeAdapterFactory 的实现都很困难.
+ 
+7、如果普通日常使用,推荐使用 fastjson,简单易懂,并且是国内程序员开发,有问题可以较容易的获得支持.
+ 
+8、Gson 有对各种类型的属性支持, 如果有特殊类型json化需求或复杂结构时可以选择 gson ,并自定义扩充.
+ 
+9、如果你不需要对JSON文档进行按需解析、且性能要求较高的话，可以尝试使用Jackson.
+
 ###44.ListView , GridView OnItemClickListener事件无响应
 分析:  
 在Android软件设计与实现中我们通常都会使用到ListView这个控件,系统有一些预置的Adapter可以使用,例如SimpleAdapter和ArrayAdapter,但是总是会有一些情况我们需要通过自定义ListView来实现一些效果,那么在这个时候,我们通常会碰到自定义ListView无法选中整个ListViewItem的情况,也就是无法响应ListView的onItemClickListener中的onItemClick()方法
