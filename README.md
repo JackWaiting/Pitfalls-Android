@@ -1,5 +1,11 @@
 # pitfalls-android
 
+### 46、生命周期引起的问题：
+
+谨慎使用Android的透明主题，透明主题会导致很多问题，比如：如果新的Activity采用了透明主题，那么当前Activity的onStop方法不会被调用；在设置为透明主题的Activity界面按Home键时，可能会导致刷屏不干净的问题；进入主题为透明主题的界面会有明显的延时感；
+
+当前Activity的onPause方法执行结束后才会执行下一个Activity的onCreate方法，所以在onPause方法中不适合做耗时较长的工作，这会影响到页面之间的跳转效率；
+
 ###[45.Android Jackson、Gson、FastJson解析框架总结](http://blog.csdn.net/zhanggang740/article/details/52278373)
 1、比较来说, Gson 比 fastjson 考虑更全面, 对用 URL , UUID, BIT_SET, CALENDAR 等等,都有特定的输出规则.
  
