@@ -1,6 +1,148 @@
 # pitfalls-android
 
-###38.APP启动闪黑屏的解决办法    
+### 46、生命周期引起的问题：
+
+谨慎使用Android的透明主题，透明主题会导致很多问题，比如：如果新的Activity采用了透明主题，那么当前Activity的onStop方法不会被调用；在设置为透明主题的Activity界面按Home键时，可能会导致刷屏不干净的问题；进入主题为透明主题的界面会有明显的延时感；
+
+当前Activity的onPause方法执行结束后才会执行下一个Activity的onCreate方法，所以在onPause方法中不适合做耗时较长的工作，这会影响到页面之间的跳转效率；
+
+###[45.Android Jackson、Gson、FastJson解析框架总结](http://blog.csdn.net/zhanggang740/article/details/52278373)
+1、比较来说, Gson 比 fastjson 考虑更全面, 对用 URL , UUID, BIT_SET, CALENDAR 等等,都有特定的输出规则.
+ 
+2、小数量的调用 Gson 比 fastjson 快一点. (几十毫秒,可以毫不在意.猜测是因为 javassist 生成新的 Wrapper 类导致,因为还要编译的.)
+ 
+3、大数量的调用 fastjson 比 Gson 快. (千万级别的.还不太确定为什么会变快, 猜测是 gson 的反射调用,毕竟比不上 fastjson Wrapper 类的真实调用.)
+
+4、代码可阅读性: fastjson 比 Gson 好很多很多.
+ 
+5、fastjson 在要序列化对象的类型的判断上,使用的是 if else 。
+ 
+6、Gson 使用的是遍历 TypeAdapterFactory集合,在每个 TypeAdapterFactory 里面做判断.而且使用了 N 多的匿名内部类, 想要一眼看出有哪些 TypeAdapterFactory 的实现都很困难.
+ 
+7、如果普通日常使用,推荐使用 fastjson,简单易懂,并且是国内程序员开发,有问题可以较容易的获得支持.
+ 
+8、Gson 有对各种类型的属性支持, 如果有特殊类型json化需求或复杂结构时可以选择 gson ,并自定义扩充.
+ 
+9、如果你不需要对JSON文档进行按需解析、且性能要求较高的话，可以尝试使用Jackson.
+
+###44.ListView , GridView OnItemClickListener事件无响应
+分析:  
+在Android软件设计与实现中我们通常都会使用到ListView这个控件,系统有一些预置的Adapter可以使用,例如SimpleAdapter和ArrayAdapter,但是总是会有一些情况我们需要通过自定义ListView来实现一些效果,那么在这个时候,我们通常会碰到自定义ListView无法选中整个ListViewItem的情况,也就是无法响应ListView的onItemClickListener中的onItemClick()方法
+
+解决方法:  
+可以通过对Item Layout的根控件设置其android:descendantFocusability=”blocksDescendants” , 这样Item Layout就屏蔽了所有子控件获取Focus的权限
+
+注意：这个属性不能设置给ListView，设置了也不起作用 ; 
+
+###43.[三星手机从相册选择图片会旋转问题完美解决](http://blog.csdn.net/lyhhj/article/details/48995065)
+问题说明: 项目中有上传图片的功能，那么涉及到拍照，从相册中选择图片，别的手机都ok没有问题，唯独三星的手机拍照之后，你会很清楚的看到会把照片旋转一下，然后你根据路径找到的图片就是已经被旋转的了;
+只要在从相册中选择到照片之后获取旋转角度,然后旋转图片就完美解决了.	
+代码如下 ：	
+先获取到照片的旋转角度 ;
+
+	/**
+	*读取照片exif信息中的旋转角度 
+     	* @param path 照片路径 
+     	* @return角度
+     	*/
+    public static int readPictureDegree(String path) {  
+        int degree  = 0;  
+        try {  
+            ExifInterface exifInterface = new ExifInterface(path);  
+            int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);  
+            switch (orientation) {  
+                case ExifInterface.ORIENTATION_ROTATE_90:  
+                    degree = 90;  
+                    break;  
+                case ExifInterface.ORIENTATION_ROTATE_180:  
+                    degree = 180;  
+                    break;  
+                case ExifInterface.ORIENTATION_ROTATE_270:  
+                    degree = 270;  
+                    break;  
+            }  
+        } catch (IOException e) {  
+            e.printStackTrace();  
+        }  
+        return degree;  
+    }  
+    
+然后我们只需要根据旋转角度将图片旋转过来就OK了
+	
+	/**
+	 * 旋转图片
+	 * @img 需要旋转的 图片
+	 * @rotate 旋转的角度
+	 * */
+	public static Bitmap rotateBitmap(Bitmap img, int rotate) {
+		Matrix matrix = new Matrix();
+		matrix.postRotate(rotate);
+		int width = img.getWidth();
+		int height = img.getHeight();
+		img = Bitmap.createBitmap(img, 0, 0, width, height, matrix, true);
+		return img;
+	}
+
+
+###42.Android七月份细节点分享
+1.与Activity通讯使用Handler更方便；如果你的框架回调链变长，考虑监听者模式简化回调。
+
+2.有序队列操作add、delete操作时，注意保持排序，否则你会比较难堪哦。
+
+3.数据库删除数据时，要注意级联操作避免出现永远删除不了的垃圾数据。
+
+4.关于形参实参：调用函数时参数为基本类型传的是值，即传值；参数为对象传递的是引用，即传址。
+
+5.listview在数据未满一屏时，setSelection函数不起作用；ListView批量操作时各子项和视图正确对应，可见即所选。
+
+6.setSelection不起作用尝试smoothScroollToPosition. ListView的LastVisiblePosition（最后一个可见项）会随着getView方法执行位置不同变动而变动。
+
+7.控制Activity的代码量，保持主要逻辑清晰，其它类保持遵守SRP（单一职责），ISP（接口隔离）原则。
+
+8.arraylist执行remove时注意移除int和Integer的区别。
+
+9.Log请打上Tag，调试打印一定要做标记，能定位打印位置，否则尴尬的是：不知道是哪里在打印。
+
+10.代码块/常量/资源可以集中公用的一定公用，即使公用逻辑稍微复杂一点也会值得，修改起来很轻松，修改一种，到处有效。
+
+###41.部分华为6.0系统手机闹钟锁屏以及延时的问题总结：
+
+通过调试和现象确认，在华为Mate8，P9上确实会概率性出现一键桌面锁屏后闹钟不响（需唤醒屏幕），以及闹钟延时的问题。
+针对这一问题，我们通过Log初步排查，首先排除是固件问题，通过观察测试demo的情况，排除了APP逻辑问题。
+其次，通过debug、log日志排查，排除了APP端问题。
+
+通过以上排除法，以及在小米、魅族、Nexus上运行的现象，最终确定此问题为华为Android 6.0定制系统所造成的问题，设置
+闹钟后，华为Android 6.0定制系统的安全软件以及手机为了保护电量与安全等，会选择性暂停一些服务，其中包括我们的闹钟服务。
+	
+###40.Butterknife:8.2.1后运行导致的空指针问题
+Butterknife:8.2.1相对于原来的Butterknife:7.1.0来说，使用起来更方便，效率上也有一定的提升，但是在使用的过程中要注意：
+Butterknife:8.2.1之后引用了“android-apt”这个插件，我们在使用的过程中也必须引用，否则在调用其注解下的View时会报空指针异常。
+解决办法：
+
+	1、第一步
+	buildscript {
+  		repositories {
+    	mavenCentral()
+   	}
+  	dependencies {
+    	classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+  		}
+	}
+	2、第二步
+	apply plugin: 'android-apt'
+
+	android {
+ 	 ...
+	}
+
+	dependencies {
+  		compile 'com.jakewharton:butterknife:8.2.1'
+  		apt 'com.jakewharton:butterknife-compiler:8.2.1'
+	}
+
+提示：如果不引用android-apt也能使用，但是会有异常。
+
+###39.APP启动闪黑屏的解决办法    
 在启动APP时，由于Activity需要跑完onCreate和onResume才会显示界面，就会导致闪黑/白屏。即便是把初始化的工作尽量减少，但由于解析界面还是需要一定时间，黑屏也还是会存在。可以通过下面两种方式尽量减少黑屏的出现：
 
 	// 1,设置背景图Theme
@@ -17,7 +159,7 @@
 第二种方式给人程序启动慢感觉，界面一次性刷出来，刷新同步。
 
 
-###37.WebView关闭后，音乐不停的解法方法 
+###38.WebView关闭后，音乐不停的解法方法 
 在WebView关闭后，发现音乐还在后台播放，调用“webView.onPause()”也并没有什么用。     
 有效的解决方法，第一种是可以加载一个空白页：
 
@@ -26,13 +168,17 @@
 
 	webView.reload();
 
+第二种解决方法(在webView关闭之前销毁) ：
 
-###36.Zxing很难识别扫描到的二维码的问题
+	webView.onDestory();
+	
+
+###37.Zxing很难识别扫描到的二维码的问题
 在GitHub上下载了一个二维码扫描的Demo，但用来识别自己屏幕上的二维码时发现怎么也识别不出来，但是用其它的二维码扫描工具很快就识别出来了。      
 最后发现是设置了一个比较低分辨率的图片去解析导致的，将分辨率调高后问题就解决了。
 
 
-###35.关于使用AlarmManager设置闹钟延时的问题。
+###36.关于使用AlarmManager设置闹钟延时的问题。
 **问题**：    
 部分手机设置闹钟时，存在延时的情况。    
 **问题原因：**    
