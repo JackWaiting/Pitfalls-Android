@@ -1,5 +1,32 @@
 # pitfalls-android
 
+### 48、ListView中数据与界面显示不同步导致的BUG
+异常日志如下：   
+	java.lang.IllegalStateException: The content of the adapter has changed but ListView did not receive a notification. Make sure the content of your adapter is not modified from a background thread, but only from the UI thread. Make sure your adapter calls notifyDataSetChanged() when its content changes.     
+我代码中产生的原因是由于ListView数据设置的是ListA的引用，而ListA会经常变动，但界面没有跟随刷新导致。給几个避免该问题的解决办法：
+
+- 确保Adapter的数据更新后一定要调用notifyDataSetChanged()方法通知ListView   
+- 数据更新和notifyDataSetChanged()放在UI线程内，且必须同步顺序执行，不可异步   
+- 我是通过将ListView的数据与源数据隔离，如通过“new ArrayList<>(ListA)”的方式与源数据分离
+
+### 47、自定义View中绘制文字居中的问题
+
+问题说明：在自定义View中，获取文字的高宽，并不能完全的居中，关键代码如下：
+
+    mFontPaint.getTextBounds(text, 0, text.length(), fontRect);  
+    // 设置文字左下角的起始点坐标，绘制文字  
+    canvas.drawText(text, centerX-fontRect.width()/2, centerY+fontRect.height()/2, mFontPaint);  
+
+上面方式不能居中的原因主要在于文字并不是在它的方格正中间绘制的，而是以Baseline作为参考线绘制的。在计算文字的高度时，应该是文字的顶部减去底部的值，通过**Paint.getFontMetrics()**获取一个FontMetrics对象，再用它的bottom-top。设置文字居中可以用**Paint.setTextAlign(Paint.Align.CENTER)**方法。示例代码如下：
+
+	mPaint.setTextAlign(Paint.Align.CENTER);  
+    Paint.FontMetrics fontMetrics= mPaint.getFontMetrics();  
+    float top = fontMetrics.top;  
+    float bottom = fontMetrics.bottom;
+	canvas.drawText(text,centerX,centerY+(bottom-top)/2,mPaint); 
+详情参考：[自定义View中文本居中显示](http://blog.csdn.net/u010134293/article/details/52335882)
+
+
 ### 46、生命周期引起的问题：
 
 谨慎使用Android的透明主题，透明主题会导致很多问题，比如：如果新的Activity采用了透明主题，那么当前Activity的onStop方法不会被调用；在设置为透明主题的Activity界面按Home键时，可能会导致刷屏不干净的问题；进入主题为透明主题的界面会有明显的延时感；
