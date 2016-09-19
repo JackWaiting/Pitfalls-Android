@@ -5,16 +5,21 @@
 简单来说分为4步来设置SlidingMenu无效的问题：
 
 1、取消状态栏修改颜色
+
 	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);//去掉信息栏
             activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);//显示状态栏
 			setTranslucentStatus(activity, true);
 		}
+		
 
 2、在需要沉浸的UI父布局中添加如下属性,注意是必须添加
+
 	android:fitsSystemWindows="true"  
+	
 此时状态栏如果为白色，则前面2步OK，否则rockback;
 3、将整体布局往上移一个状态栏的高度，将布局顶上去
+
 	@TargetApi(19)
     	public static void setTranslucentStatus(Activity activity,boolean on) {
         	Window win = activity.getWindow();
@@ -27,6 +32,7 @@
         	}
         	win.setAttributes(winParams);
     	}
+    	
  4、通过子布局上方显示与隐藏来控制上边距
  
   //状态栏显示隐藏设置
