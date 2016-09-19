@@ -18,6 +18,7 @@
 	android:fitsSystemWindows="true"  
 	
 此时状态栏如果为白色，则前面2步OK，否则rockback;
+
 3、将整体布局往上移一个状态栏的高度，将布局顶上去
 
 	@TargetApi(19)
