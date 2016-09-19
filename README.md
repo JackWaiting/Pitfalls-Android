@@ -1,5 +1,50 @@
 # pitfalls-android
 
+### 49、沉浸式状态栏对SlidingMenu无效的问题
+针对Andorid4.4以及5.0以后，更多的APP更亲耐于沉浸式状态栏，无论从视觉和体验上都以成主流，但这种沉浸式的状态栏并未天衣无缝，由于Android 中SlidingMenu有继承与ViewGroup,ViewPage等，由于源码冲突，使用普通的方法无论是设置主题，还是通过代码设置setTranslucentStatus实测均对SlidingMenu无效。通过对SlidingMenu源码简单分析，换一种概念的来实现这种沉浸式的效果。
+简单来说分为4步来设置SlidingMenu无效的问题：
+
+1、取消状态栏修改颜色
+	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);//去掉信息栏
+            activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);//显示状态栏
+			setTranslucentStatus(activity, true);
+		}
+
+2、在需要沉浸的UI父布局中添加如下属性,注意是必须添加
+	android:fitsSystemWindows="true"  
+此时状态栏如果为白色，则前面2步OK，否则rockback;
+3、将整体布局往上移一个状态栏的高度，将布局顶上去
+	@TargetApi(19)
+    	public static void setTranslucentStatus(Activity activity,boolean on) {
+        	Window win = activity.getWindow();
+        	WindowManager.LayoutParams winParams = win.getAttributes();
+        	final int bits = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
+        	if (on) {
+            		winParams.flags |= bits;
+        	} else {
+            		winParams.flags &= ~bits;
+        	}
+        	win.setAttributes(winParams);
+    	}
+ 4、通过子布局上方显示与隐藏来控制上边距
+ 
+  //状态栏显示隐藏设置
+    public static void setStatusBarViewVisibility(View view) {
+        if (view == null) {
+            return;
+        }
+        //注释掉状态栏view
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+			view.setVisibility(View.VISIBLE);
+		} else{
+			view.setVisibility(View.GONE);
+		}
+    }
+    
+以上方法在项目中亲测，有效。
+
+
 ### 48、ListView中数据与界面显示不同步导致的BUG
 异常日志如下：   
 	java.lang.IllegalStateException: The content of the adapter has changed but ListView did not receive a notification. Make sure the content of your adapter is not modified from a background thread, but only from the UI thread. Make sure your adapter calls notifyDataSetChanged() when its content changes.     
