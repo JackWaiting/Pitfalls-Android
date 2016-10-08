@@ -1,5 +1,95 @@
 # pitfalls-android
 
+### 52、Android6.0扫描不到蓝牙设备的处理办法
+
+描述：在Android6.0手机上扫描不到蓝牙设备（如Nexus6），并会抛出一个异常：
+
+    java.lang.SecurityException: Need ACCESS_COARSE_LOCATION or ACCESS_FINE_LOCATION permission to get scan results
+
+解决办法：   
+1，在清单文件加入权限：
+
+	<uses-permissionandroid:name="android.permission.ACCESS_FINE_LOCATION"/> 
+	<uses-permissionandroid:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
+2，在Activity中调用  requestPermissions() 方法来请求权限，系统会弹出需要请求权限的对话框   
+3，重写Activity的onRequestPermissionsResult()方法，接收权限是否请求的请求状态    
+示例代码如下：
+
+	private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        ......
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // Android M Permission check
+            if (this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_COARSE_LOCATION);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_REQUEST_COARSE_LOCATION:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // TODO request success
+                }
+            break;
+        }
+    }
+
+
+### 51、Android输入法弹出，设置控件在软键盘之上显示
+
+描述：当输入法弹出时，布局会被压缩，某些控件被遮挡住，但是需求可能并不想让该控件遮挡住。如何让某些控件也浮在软件盘上，比如“登录”按钮。   
+解决：给最外层的布局设置一个OnGlobalLayoutListener的监听事件，当布局发生改变时改变控件位置的方式来实现，代码如下：
+
+		/**
+		* @param root 最外层布局，需要调整的布局
+		* @param scrollToView  被键盘遮挡的scrollToView，滚动root,使scrollToView在root可视区域的底部
+		*/
+		private void controlKeyboardLayout(final View root, final View scrollToView) {
+			// 注册一个回调函数，当在一个视图树中全局布局发生改变或者视图树中的某个视图的可视状态发生改变时调用这个回调函数。
+			root.getViewTreeObserver().addOnGlobalLayoutListener(
+		        new ViewTreeObserver.OnGlobalLayoutListener() {
+		            @Override
+		            public void onGlobalLayout() {
+		                Rect rect = new Rect();
+		                // 获取root在窗体的可视区域
+		                root.getWindowVisibleDisplayFrame(rect);
+		                // 当前视图最外层的高度减去现在所看到的视图的最底部的y坐标
+		                int rootInvisibleHeight = root.getRootView().getHeight() - rect.bottom;
+		                // 若rootInvisibleHeight高度大于100，则说明当前视图上移了，说明软键盘弹出了
+		                if (rootInvisibleHeight > 100) {
+		                    //软键盘弹出来的时候
+		                    int[] location = new int[2];
+		                    // 获取scrollToView在窗体的坐标
+		                    scrollToView.getLocationInWindow(location);
+		                    // 计算root滚动高度，使scrollToView在可见区域的底部
+		                    int srollHeight = (location[1] + scrollToView.getHeight() + PixelUtil.dp2px(20, getContext())) - rect.bottom;
+		                    if (srollHeight != 0){
+		                        root.scrollTo(0, srollHeight);
+		                    }
+		                } else {
+		                    // 软键盘没有弹出来的时候
+		                    root.scrollTo(0, 0);
+		                }
+		            }
+		        });
+		}
+
+
+
+### 50、使用fragmentManager.add()方法打开新页面时，界面不更新保持在原界面上
+
+描述：调用add()方法切换新页面后，界面并没有替换，依旧停留在原来的页面上，而调用replace()方法时可以正常替换     
+原因：替换是在LinearLayout布局中，新添加的布局显示在屏幕以外所以感觉是没有开启新的页面。可以改成使用FrameLayout。   
+
+区别: add 是把一个fragment添加到一个容器 container 里。replace 是先remove掉相同id的所有fragment，然后在add当前的这个fragment。在使用add()的情况下，这个container其实有多层，多层肯定要比一层的来得浪费，所以还是推荐使用replace()。   
+
+
 ### 49、沉浸式状态栏对SlidingMenu无效的问题
 针对Andorid4.4以及5.0以后，更多的APP更亲耐于沉浸式状态栏，无论从视觉和体验上都以成主流，但这种沉浸式的状态栏并未天衣无缝，由于Android 中SlidingMenu有继承与ViewGroup,ViewPage等，由于源码冲突，使用普通的方法无论是设置主题，还是通过代码设置setTranslucentStatus实测均对SlidingMenu无效。通过对SlidingMenu源码简单分析，换一种概念的来实现这种沉浸式的效果。
 简单来说分为4步来设置SlidingMenu无效的问题：
