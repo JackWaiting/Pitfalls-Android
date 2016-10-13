@@ -1,5 +1,29 @@
 # pitfalls-android
 
+###53、Android细节点总结
+
+1.timePicker点击确定后需要clearFoucs才能获取手动输入的时间。
+
+2.Handler在子线程使用Looper.prepare,或者new的时候给构造函数传入MainLooper来确保在主线程run。
+
+3.ExpandableListView的子列表不能点击（禁用）要把Adapter的isChildSelectable方法返回true。
+
+4.注意按钮的感应范围不小于9mm否则不易点击；输入框注意光标的位置更易用互输入。
+
+5.服务器和客户端尽量统一唯一标识（有可能是ID），否则多少会有歧义和问题。
+
+6.activity的finish方法中使用了synchronized (this)，所以activity的方法尽量不要使用 synchronized来修饰，或者有 synchronized (this)修饰的方法块，因为这些方法或者方法块一旦存在耗时操作，会导致finish方法无法执行，从而造成ANR。
+
+7.PopupWindow中的EditText点击和长按的时候是没有复制，黏贴，全选这些选项弹出来的，这是android的一个系统bug，可以使用Dialog替代PopupWindow来达到同样的效果。
+
+8.如果TextView的text含有特殊字符，使得text不靠TextView的左边显示，可以通过强制设置gravity为left来解决。
+
+9.
+Android中animation自从开始起作用后，就缓存到了某个地方，只管不停的绘制，哪怕自己都不存在了，都还在那绘制，clearAnimation的作用就是通知一下他，你都没了，别再画了（比如一个button，startAnimation后没有clearAnimation，你点击的话很难相应，那就是因为这个button一直在不停的绘制，你点击的时候一直获取不到焦点）。
+
+10.
+Android中animation对于目标view的位置实际上是没有改变的，当android:fillAfter="true"时，动画结束后view停在动画最后一祯的位置。
+
 ### 52、Android6.0扫描不到蓝牙设备的处理办法
 
 描述：在Android6.0手机上扫描不到蓝牙设备（如Nexus6），并会抛出一个异常：
