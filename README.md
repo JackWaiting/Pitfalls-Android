@@ -1,5 +1,18 @@
 # pitfalls-android
 
+###55、事件分发处理总结
+在我们Android程序中，除单一控件（继承ViewGroup）的，例如TextView,Button等是无法拦截事件外，其它View均可对事件进行分发，拦截以及向上传递。其中事件分发的事件dispatchTouchEvent。当我们重写此方法时，可以接收父类传递下来的事件，传递true，消费此事件，否则会继续向下传递。
+
+在传递过程中我们也可以通过子类对它进行拦截，方法时重写onInterceptTouchEvent方法，返回true拦截，false不拦截。
+
+如果整个触摸事件过程中，所有事件均未对它拦截，那么他的事件最终也会通过onTouchEvent从最下层的控件逐步向上传递，最终返回到Activity或Fragment的onTouchEvent中。
+
+在整个事件分发中，我们也可以通过getParent或getChildren拿到父类或子类事件进行处理。
+
+常见事件分发冲突案例：ViewPager嵌套Fragment过程中，在其中一个Fragment中有轮播图时，会照成事件冲突,或滑动偏移等情况。
+
+解决方案：自定义Viewpager,重写onTouchEvent，当用户执行down与move事件时，事件分发给轮播图的控件处理，当执行到up与cancle事件时，在将事件重新传给viewPager处理。不过通过测试Android Studio中最近的v4包中好像已经修复了此问题。
+
 ###54、生命周期引起的监听问题
 部分开发者在注册监听时，经常会在注册监听后在Activity或Fragment销毁时未移除此监听。
 
