@@ -1,5 +1,42 @@
 # pitfalls-android
 
+###57、BLE中心设备的 **onCharacteristicChanged()** 方法没有回调
+
+**描述：**当设备为 **Indication** 模式时，设备的值有变化时会主动返回给App，App在 **onCharacteristicChanged()** 方法中能收到返回的值。
+
+**问题：**在App中通过如下代码注册监听，注册成功后就能接收到设备主动反馈的值了。然而以下代码执行后依旧收不到反馈。   
+
+	bluetoothGatt.setCharacteristicNotification(characteristic, true)
+
+**解决：** 当上面的方法执行返回true后，还要执行如下的代码才能注册成功。（[完整代码](http://blog.csdn.net/u010134293/article/details/53422349)）
+
+	for(BluetoothGattDescriptor dp: characteristic.getDescriptors()){
+		if (dp != null) {
+			if ((characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0) {
+				dp.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+			} else if ((characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_INDICATE) != 0) {
+				dp.setValue(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+			}
+			gatt.writeDescriptor(dp);
+		}
+	}
+
+
+
+###56、Android 6.0 动态请求权限
+
+**描述：**Android 应用在访问额外的资源或信息时，需要请求相应权限。根据权限的敏感性，系统可能会自动授予权限，或者由用户对请求进行许可。Android6.0及以上应用除了在清单文件中声明权限，敏感权限还需要在用户使用时动态授予。官方定义了[普通和危险权限](https://developer.android.com/guide/topics/security/permissions.html#normal-dangerous)，经测试发现**部分手机厂商的敏感权限会有所差异**。   
+
+**问题：**应用中用到 **READ\_PHONE\_STATE** 权限来获取设备ID，在华为、小米的6.0系统的手机上运行都可以正常获取，然而在Nexus5X上获取失败而导致应用闪退。
+
+**原因：**华为、小米等系统会默认允许该权限，而官方定义该权限为危险权限默认不被允许。   
+
+**解决：**   
+>1，将 **targetSdkVersion** 版本号调整为 **23** 以下，这样应用不需要在运行时请求权限，系统会默认允许清单文件中所有权限。   
+>
+>2，在应用中向用户动态请求权限，请求方式可参考 **[52、Android6.0扫描不到蓝牙设备的处理办法](#SCAN_BLUETOTH_PERMISSION)**。更好的做法是使用Github上的第三方权限请求库。
+
+
 ###55、事件分发处理总结
 在我们Android程序中，除单一控件（继承ViewGroup）的，例如TextView,Button等是无法拦截事件外，其它View均可对事件进行分发，拦截以及向上传递。其中事件分发的事件dispatchTouchEvent。当我们重写此方法时，可以接收父类传递下来的事件，传递true，消费此事件，否则会继续向下传递。
 
@@ -48,7 +85,7 @@ Android中animation自从开始起作用后，就缓存到了某个地方，只�
 10.
 Android中animation对于目标view的位置实际上是没有改变的，当android:fillAfter="true"时，动画结束后view停在动画最后一祯的位置。
 
-### 52、Android6.0扫描不到蓝牙设备的处理办法
+### [52、Android6.0扫描不到蓝牙设备的处理办法](#SCAN_BLUETOTH_PERMISSION)
 
 描述：在Android6.0手机上扫描不到蓝牙设备（如Nexus6），并会抛出一个异常：
 
