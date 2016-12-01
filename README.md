@@ -1,5 +1,53 @@
 # pitfalls-android
 
+###55、事件分发处理总结
+在我们Android程序中，除单一控件（继承ViewGroup）的，例如TextView,Button等是无法拦截事件外，其它View均可对事件进行分发，拦截以及向上传递。其中事件分发的事件dispatchTouchEvent。当我们重写此方法时，可以接收父类传递下来的事件，传递true，消费此事件，否则会继续向下传递。
+
+在传递过程中我们也可以通过子类对它进行拦截，方法时重写onInterceptTouchEvent方法，返回true拦截，false不拦截。
+
+如果整个触摸事件过程中，所有事件均未对它拦截，那么他的事件最终也会通过onTouchEvent从最下层的控件逐步向上传递，最终返回到Activity或Fragment的onTouchEvent中。
+
+在整个事件分发中，我们也可以通过getParent或getChildren拿到父类或子类事件进行处理。
+
+常见事件分发冲突案例：ViewPager嵌套Fragment过程中，在其中一个Fragment中有轮播图时，会照成事件冲突,或滑动偏移等情况。
+
+解决方案：自定义Viewpager,重写onTouchEvent，当用户执行down与move事件时，事件分发给轮播图的控件处理，当执行到up与cancle事件时，在将事件重新传给viewPager处理。不过通过测试Android Studio中最近的v4包中好像已经修复了此问题。
+
+###54、生命周期引起的监听问题
+部分开发者在注册监听时，经常会在注册监听后在Activity或Fragment销毁时未移除此监听。
+
+如果是单一的监听，可能仅仅只是造成内存泄漏的情况，至少用户感知不到，但是如果我们在一个父类中写一个监听，同时有2个子类注册了此监听，
+并在父类中有弹出Dialog或者刷新UI的操作时，当其中一个子类被finish掉后，其实例被回收，但其监听仍然会存在。这会引起当我们在另外一个未被finish的实例中去做跟监听相关的操作会，由于之前的实例被finish,监听又存在，回走多次回调，并且很有可能会导致空指针等一系列导致程序崩溃的异常。如果子类的监听无穷多，甚至会导致OOM。
+
+建议，在实例销毁时一定要及时的移除没必要的监听，竟可以节约内存，也可以避免在后期添加需求时代码的耦合性。
+
+
+
+
+###53、Android细节点总结
+
+1.timePicker点击确定后需要clearFoucs才能获取手动输入的时间。
+
+2.Handler在子线程使用Looper.prepare,或者new的时候给构造函数传入MainLooper来确保在主线程run。
+
+3.ExpandableListView的子列表不能点击（禁用）要把Adapter的isChildSelectable方法返回true。
+
+4.注意按钮的感应范围不小于9mm否则不易点击；输入框注意光标的位置更易用互输入。
+
+5.服务器和客户端尽量统一唯一标识（有可能是ID），否则多少会有歧义和问题。
+
+6.activity的finish方法中使用了synchronized (this)，所以activity的方法尽量不要使用 synchronized来修饰，或者有 synchronized (this)修饰的方法块，因为这些方法或者方法块一旦存在耗时操作，会导致finish方法无法执行，从而造成ANR。
+
+7.PopupWindow中的EditText点击和长按的时候是没有复制，黏贴，全选这些选项弹出来的，这是android的一个系统bug，可以使用Dialog替代PopupWindow来达到同样的效果。
+
+8.如果TextView的text含有特殊字符，使得text不靠TextView的左边显示，可以通过强制设置gravity为left来解决。
+
+9.
+Android中animation自从开始起作用后，就缓存到了某个地方，只管不停的绘制，哪怕自己都不存在了，都还在那绘制，clearAnimation的作用就是通知一下他，你都没了，别再画了（比如一个button，startAnimation后没有clearAnimation，你点击的话很难相应，那就是因为这个button一直在不停的绘制，你点击的时候一直获取不到焦点）。
+
+10.
+Android中animation对于目标view的位置实际上是没有改变的，当android:fillAfter="true"时，动画结束后view停在动画最后一祯的位置。
+
 ### 52、Android6.0扫描不到蓝牙设备的处理办法
 
 描述：在Android6.0手机上扫描不到蓝牙设备（如Nexus6），并会抛出一个异常：
@@ -569,18 +617,12 @@ android studio很好的解决了这个问题。
 ***
 ### 20.Android 6.0系统注意事项(硬件设备)
 根据Android官方文档：Android 6.0设备通过蓝牙和Wi-Fi扫描访问外部硬件设备时，你的应用需要添加ACCESS_FINE_LOCATION或者ACCESS_COARSE_LOCATION权限。    
- 
-**注意: 这两个权限在手机上提示为定位权限,用户看到扫描的时候提示是否允许定位很有可能会拒接,拒接后是扫描不到外部硬件的   **
 
-***
-以下为正序，以上为倒序。
-***
-##一、Wifi灯项目坑总结
-### 1.radiobutton setChecked(false)后，再setChecked(true)无效，只有先选择其它的radiobutton才会有效。
+### 19.radiobutton setChecked(false)后，再setChecked(true)无效，只有先选择其它的radiobutton才会有效。
 原因：只设置了radiobutton的属性，并没有设置radiogroup的属性，所以对于radiogroup来说，它并不知道你的radiobutton已经设置成了false
 <br>解决：调用radioGroup.clearCheck() 来清空选择
 
-### 2，Fragment栈管理。加入进栈，清空栈。
+### 18，Fragment栈管理。加入进栈，清空栈。
         for (int i=0;i<getActivity().getSupportFragmentManager().getBackStackEntryCount();i++)
                getActivity().getSupportFragmentManager().popBackStack();	// 回退栈
          fragManager.beginTransaction()
@@ -589,20 +631,20 @@ android studio很好的解决了这个问题。
                  // .addToBackStack(null)	// 是否将改动作添加到回退栈
                    .commit();
 
-### 3，华为手机Intent不能传序列化的Object对象
+### 17，华为手机Intent不能传序列化的Object对象
 
-### 4，Service没有在清单文件中配置，在开启该Service时，程序不会报错。
+Service没有在清单文件中配置，在开启该Service时，程序不会报错。
 
-### 5，Fragment在退出后getActivity()方法返回为空，如在Handler中延迟执行一个事件，在触发之前退出改Fragment，触发时会出错。
+### 16，Fragment在退出后getActivity()方法返回为空，如在Handler中延迟执行一个事件，在触发之前退出改Fragment，触发时会出错。
 
-### 6，点击事件变色的Shape
+### 15，点击事件变色的Shape
 主要是android:state_focused="true" android:state_pressed="true"这两个属性，具体参考：[http://blog.csdn.net/u010134293/article/details/50161967](http://blog.csdn.net/u010134293/article/details/50161967 "自定义Drawable（文字按钮点击效果设置）")
 
-### 7，APP界面图片显示错位或混乱，而资源文件的相关引用确定没有错误
+### 14，APP界面图片显示错位或混乱，而资源文件的相关引用确定没有错误
 问题：由于R文件生成错误导致
 <br>解决：在发布项目之前**Clean Project**
 
-### 8，for循环，ConcurrentModificationException异常。（并发修改）
+### 13，for循环，ConcurrentModificationException异常。（并发修改）
 	// 错误写法
 	for (String item : set) {
 		if ("bbbbbbb".equals(item)) {
@@ -619,19 +661,19 @@ android studio很好的解决了这个问题。
 		}
 	}
 
-### 9，JNI加载so文件时，报java.lang.UnsatisfiedLinkError: dalvik.system.PathClassLoader错误，但在armeabi下有这个文件，并且文件名正确。
+### 12，JNI加载so文件时，报java.lang.UnsatisfiedLinkError: dalvik.system.PathClassLoader错误，但在armeabi下有这个文件，并且文件名正确。
 可能原因，还有其它的文件夹，如armeabi-v7a、x86、mips等文件夹，但是该文件夹下没有对应的so文件，可以通过删除其它文件来解决BUG。
 <br>参考网址：[http://www.it165.net/embed/html/201410/2707.html](http://www.it165.net/embed/html/201410/2707.html "Androidndk开发打包时我们应该如何注意平台的兼容（x86,arm,arm-v7a）")
 
-### 10， Apk安装错误：Installation error: INSTALL_FAILED_VERSION_DOWNGRADE
+### 11， Apk安装错误：Installation error: INSTALL_FAILED_VERSION_DOWNGRADE
 是因为 androidversionCode 的原因，我们手机里面的APP 的 versionCode 高于将要安装的 APP!
 <br>将 androidversionCode 的版本号改成一个更高的版本。
 
-***
-##关于自定义控件小米2s的坑总结
+
+###10关于自定义控件小米2s的坑总结
 在自定义控件的时候有两个方法特别重要，第一个是onMeasure,第二个是onSizeChanged。onMeasure做计算屏幕的工作，但是小米2s，却在这里做了更多的处理。在切换到其他屏幕的时候，会多次执行onMeasure，切换回原来界面也会多次执行onMeasure。如果你在这里处理了逻辑问题，很可能会出现很多问题。目前可以把逻辑写入到onSizeChanged里面去。他会在第一次进入界面的时候调用。还有一种就是屏幕发生变化的时候进行调用，比如华为p6，它下面会多出一块操作区域。
 
-###11，关于gradle的使用
+###9，关于gradle的使用
 1、文件开头apply plugin是最新gradle版本的写法，以前的写法是apply plugin: ‘android’, 这里大家注意一下。 
 2、buildToolsVersion这个需要你本地安装该版本才行，很多人导入新的第三方库，失败的原因之一是build version的版本不对，这个可以手动更改成你本地已有的版本或者打开 SDK Manager 去下载对应版本。 
 3、applicationId代表应用的包名，也是最新的写法，这里就不在多说了。 
@@ -640,24 +682,23 @@ android studio很好的解决了这个问题。
 6、proguardFiles这部分有两段，前一部分代表系统默认的android程序的混淆文件，该文件已经包含了基本的混淆声明，免去了我们很多事，这个文件的目录在 sdk目录/tools/proguard/proguard-android.txt , 后一部分是我们项目里的自定义的混淆文件，目录就在 app/proguard-rules.txt , 如果你用Studio 1.0创建的新项目默认生成的文件名是 proguard-rules.pro , 这个名字没关系，在这个文件里你可以声明一些第三方依赖的一些混淆规则，由于是开源项目，SnailBulb_Basic_Android里并未进行混淆，具体混淆的语法也不是本篇博客讨论的范围。最终混淆的结果是这两部分文件共同作用的。 
 具体参考：[http://blog.csdn.net/zhanggang740/article/details/49907745](http://blog.csdn.net/zhanggang740/article/details/49907745 "Gradle基础--认识Gradle")
 
-###12，关于小米闹钟弹框的坑总结
+###8，关于小米闹钟弹框的坑总结
 这个问题是之前做音箱类应用的时候遇到的，功能就是在应用未杀死的情况下，闹钟响时能弹出提示框。后来发现其他的手机都可以弹出，唯独是小米不行。原因既然是小米把系统的悬浮窗给禁掉了，只有用户手动开打这个权限后才能弹，大家可以注意下这个问题。
 
-###13，关于内存溢出的总结
+###7，关于内存溢出的总结
 最近已经写了一篇博客对这块进行了总结。
 具体参考：[http://blog.csdn.net/zhanggang740/article/details/50393466](http://blog.csdn.net/zhanggang740/article/details/50393466 "关于内存溢出的总结")
 
-***
-##关于在tf卡下接听电话的坑总结
+###6,关于在tf卡下接听电话的坑总结
 在tf卡下有电话进来会自动切换到a2dp模式，在a2dp模式下不用处理tf的音乐，因为a2dp下调用卡音乐的方法会在来电时自动接听，去电时会自动挂断。
 
-###15,解决客户反馈打开应用就闪退的隐形坑
+###5,解决客户反馈打开应用就闪退的隐形坑
 ListView嵌套GridView计算高度setGridViewHeightBasedOnChildren时，getView会计算到空值的情况，在这种情况下一定不要在convertView为null的情况下去调用hodler中刷新一些UI值，否则在某些手机下会出现空指针的情况，此时，如果调用View.setBackground方法会引起 NoSuchMethodError错误，这时我们一定要对这些手机版本进行控制，通过官方API提供的@TargetApi(Build.VERSION_CODES.JELLY_BEAN)进行控制即可，保证运行低版本时不会出现NoSuchMethodError错误。
 如下图：
 ![pic_01](https://github.com/JackWaiting/pitfalls-android/blob/master/pitfalls.png)
 
 
-###16，不要在Android的Application对象中缓存数据
+###4,不要在Android的Application对象中缓存数据
 在我们App中的很多地方都需要使用到数据信息，它可能是一个session token，一次费时计算的结果等等，通常为了避免Activity之间传递数据的开销，会将这些数据通过持久化来存储。
 
 有人建议将这些数据放在Application对象中方便所有的Activity访问，这个解决方案简单、优雅并且是……完全错误的。
@@ -680,7 +721,7 @@ ListView嵌套GridView计算高度setGridViewHeightBasedOnChildren时，getView�
 4、在使用数据和句柄的时候做空值检测；
 
 
-##17，四月Android开发细节点总结
+##3，四月Android开发细节点总结
 1. 使用ListView时如果用到removeHeaderView，一定要确定ListView已经使用了setAdapter方法，不然会报NullPointException，addFooterView必须在setAdapter之前才会生效。
 
 2. 使用ListView的时候，布局尽量使用fill_parent或者写死，如果使用wrap_content，它初始化的时候需要测量，会不断调用adapter的getView方法。
@@ -701,7 +742,7 @@ ListView嵌套GridView计算高度setGridViewHeightBasedOnChildren时，getView�
 
 10. 当使用.9图做为一个view的background，如果在代码中动态修改了它的background，那么，这个view原先设置的padding将会失效。应先保存去padding值，然后等动态设置完background后再通过setPadding设置padding值。
 
-##18，总结Testin中出现的BUG问题
+##2，总结Testin中出现的BUG问题
 1、对问题进行setBackgrond会导致低版本出现java.lang.NoSuchMethodError问题。
 解决此类问题的版本之前已经提示过，但是好像无法彻底解决，因此建议大家在项目中不要直接再去使用setBackgrond，因此带来的闪退是用户无法接受的，建议使用setBackgroundDrawablue和setbackgroundResource代替，以此来设备低版本出现的闪退问题。
 
@@ -714,7 +755,7 @@ ListView嵌套GridView计算高度setGridViewHeightBasedOnChildren时，getView�
 4、在加载Log日志的时候，出现的空指针问题
 在我们的程序中，有时候会去打印一些集合或者实例化对象的某些属性，这些属性在某些情况下不做非空判断是会导致空指针出现的，一般我们会忽略输出Log日志的忘掉非空判断，这里提醒大家，平时一定要注意。
 
-##19，Android 上传应用商店时出现ERROR getting 错误
+##1，Android 上传应用商店时出现ERROR getting 错误
 最近出现一个bug，是上传应用商店的时候，部分应用商店会调用aapt工具获取apk信息，在获取信息时会出现错误。
 
 这个错误并不长出现，只有一些国外的解决文章，还是花了一些时间才解决，这里记录一下了，如果少年们出现了类似的问题也可是试一下下面的解决方案。
