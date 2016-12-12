@@ -1,5 +1,31 @@
 # pitfalls-android
 
+###58、解决传说中的 Android 65k 问题
+
+在 Android 开发中，有一个之前很少听说，最近偶尔江湖传闻听到过的问题，就是 65k 问题。什么是65k问题呢？其实很简单，就是 Android 有个限制，你的每个 App 中函数最多只能有 65536 个。
+
+这个限制其实是这样的，因为在编译成 Dalvik 字节码，也就是把你的 Class 们生成打包到一个 classes.dex 中去的时候呢，编译器会给你的 App 中所有的函数方法指定一个 ID， 然后每一个 classes.dex 中 ID 的范围是 [0, 0xffff] 。 所以，你懂的，就有了那么一个 65k 的问题。
+
+**编译报错现象**
+
+	Error:Execution failed for task ':app:transformClassesWithDexForDebug'.
+	> com.android.build.api.transform.TransformException:
+	> com.android.ide.common.process.ProcessException: org.gradle.process.internal.ExecException: Process 'command 'C:\Program Files\Java\jdk1.8.0_51\bin\java.exe'' finished with non-zero exit value 2
+
+**解决方法（针对Android Studio）：**在build.gradle中对应的地方添加
+multiDexEnabled true 这句代码就行了，如下
+	
+	android {
+		
+    	defaultConfig {
+        	multiDexEnabled true
+		}
+
+		......
+
+	}
+
+
 ###57、BLE中心设备的 **onCharacteristicChanged()** 方法没有回调
 
 **描述：**当设备为 **Indication** 模式时，设备的值有变化时会主动返回给App，App在 **onCharacteristicChanged()** 方法中能收到返回的值。
