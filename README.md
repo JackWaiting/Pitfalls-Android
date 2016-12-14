@@ -1,5 +1,13 @@
 # pitfalls-android
 
+###58、Android 6.0+设备无法获取`WRITE_EXTERNAL_STORAGE`权限
+
+**描述：**Android6.0+以后，系统对权限管理模块进行的升级，并且对权限进行的分类，其中`WRITE_EXTERNAL_STORAGE`为危险权限。
+
+**问题：**Android6.0+的手机上使用录音功能后播放无声音，此时用户点击了允许录音的权限，但是仍然无法录音。
+
+**解决：**通过现象排查，由于出现此问题的手机Android系统均为6.0+，而6.0+的手机在权限这块改定较大，通过调试发现此问题的原因是无法获取WRITE_EXTERNAL_STORAGE权限，导致录音文件未被写入SD卡，以至于播放录音无声音；**将文件存储路径改为/data/data/包名/cache/;**解决此问题，因为此路径为内置路径，在6.0系统（ API > 23 ）时，不需要申请权限就可以向这个目录写入文件。
+
 ###57、BLE中心设备的 **onCharacteristicChanged()** 方法没有回调
 
 **描述：**当设备为 **Indication** 模式时，设备的值有变化时会主动返回给App，App在 **onCharacteristicChanged()** 方法中能收到返回的值。
