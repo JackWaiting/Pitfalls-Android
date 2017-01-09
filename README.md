@@ -1,5 +1,34 @@
 # pitfalls-android
 
+###61、媒按键监听，Android5.0+ 不同的监听方式
+
+**使用场景描述：**
+应用中需要播放音乐的时候，通常有个令人捉急的问题就是媒体焦点；假如同时用 QQ音乐 与自己的应用同时播放音乐的时候，媒体焦点到底花落谁家，谁能够响应这次媒体按键；这就要看谁最后申请了这个焦点
+
+以往的方式都是通过广播的形式，来看看 Android 5.0+ 的注册方式
+
+		 int result = audioManager
+                .requestAudioFocus(onAudioFocusChangeListener,
+                        AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+
+        if (AudioManager.AUDIOFOCUS_REQUEST_GRANTED == result) {
+
+            if (android.os.Build.VERSION.SDK_INT >= 21) {
+                //注册媒体按键 Android 5.0+
+                 session = new MediaSession(mContext, "tag");
+				session.setCallback(new MediaSession.Callback() {
+					//这里重写 播放/暂停，上下一曲的回调 ，按键都走这里的回调			
+				}
+
+            } else {
+                //通常的注册媒体按键 ，广播的方式
+                audioManager.registerMediaButtonEventReceiver(mComponentName);
+            }
+
+        }
+>Android 5.0+ 如果用以往广播的方式注册，焦点抢不过来；
+
+详细代码请参考：[Android 注册媒体按键监听](http://www.jianshu.com/p/b52754c50f89)
 
 ###60、Android 6.0+设备无法获取`WRITE_EXTERNAL_STORAGE`权限
 
