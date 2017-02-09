@@ -1,5 +1,24 @@
 # pitfalls-android
 
+###62、Google Play Store 过滤问题总结
+
+说明：当用户在 Google Play 上搜索或浏览应用以下载时，会根据哪些应用与其设备兼容来过滤搜索结果。例如，如果应用需要摄像头，Google Play 不会在没有摄像头的设备上显示该应用。这种过滤帮助开发者管理其应用的分发，并且有助于确保为用户提供最佳的体验
+
+过滤规则 ： [https://developer.android.com/google/play/filters.html?hl=zh-cn](https://developer.android.com/google/play/filters.html?hl=zh-cn)
+>注：需要硬件支持的权限也会默认进行设备兼容过滤；
+
+
+如何去掉指定功能设备兼容过滤 ：
+
+Nexus 7 没有电话功能 ，然而在应用的 Manifest 文件里声明了电话相关的权限，希望不支持电话功能的设备也能搜索该 APP
+，就在 Manifest 文件添加如下代码 ：
+
+	<uses-feature android:name="android.hardware.telephony" android:required="false"/>
+
+>注：通过显式声明某项功能并加入 android:required="false" 属性，可以在 Google Play 上有效停用所有针对指定功能的过滤。
+
+更多功能声明 ： [https://developer.android.com/guide/topics/manifest/uses-feature-element.html?hl=zh-cn#permissions-features](https://developer.android.com/guide/topics/manifest/uses-feature-element.html?hl=zh-cn#permissions-features)
+
 ###61、媒按键监听，Android5.0+ 不同的监听方式
 
 **使用场景描述：**
