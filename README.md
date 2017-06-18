@@ -6,6 +6,48 @@
 解决方法：****
 ***
 
+### 编译时出现jar包内包含相同的文件
+
+问题现象：
+我在项目中添加了一些jar的引用，但在编译的时候发现存在相同的文件，导致编译失败。    
+原因分析：   
+
+> Error:Execution failed for task ':app:transformResourcesWithMergeJavaResForDebug'.
+> com.android.build.api.transform.TransformException: com.android.builder.packaging.DuplicateFileException: Duplicate files copied in APK META-INF/***.properties 
+
+解决方法：
+如果依赖的jar使用多次引用版本不同的jar包，那么最好的办法是选择留下最合适的版本jar包。小概率是因为使用不是相同的jar包时出现了文件冲突问题，这时候在build.gradle中添加packagingOptions就能解决。
+
+	packagingOptions { 
+	     exclude 'META-INF/***.properties      }
+
+### 63、关于so库使用小总结
+   
+问题现象：
+应用中新添加了so库，在32位处理器上没有问题，跑64处理器的时候出现了UnsatisfiedLinkError的问题，查看了异常是lib64的so库没有找到，之后添加了ndk的配置后，成功在64处理器上跑通，但发现library里的so库受到影响，加载失败。    
+原因分析：
+> java.lang.UnsatisfiedLinkError:dalvik.system.PathClassLoader
+> java.lang.UnsatisfiedLinkError:No implementation found for void io.vov.... MedioPlayer.native_init()
+
+第一个异常里面有lib64 so 没有发现，直接找64和32位的问题，第二个
+问题指向的是一个native方法init失败，打包apk发现只有armeabi中的so库，而library中为了优化性能和文件大小，只在armeabi留下一个库，其他都放在了其他文件夹中。	
+解决方法：
+处理64位兼容上，使用了兼容armeabi的方法，在build.gradle中添加了
+
+	   ndk {
+	    abiFilters "armeabi"
+	    } 
+
+由于library中armeabi只有一个so库，所以加载失败了。原因是指定要ndk需要兼容的架构(这样其他依赖包里mips,x86,armeabi,arm-v8之类的so会被过滤掉)，所以在上面添加了
+
+		ndk {
+		abiFilters "armeabi", "x86"，"armeabi-v7a"
+		}
+
+这样就能兼容我使用的库中的所有so，但还是担心后面有加载库失败的问题，查看了网上abi的资料，没问题。
+在项目只包含了 armeabi，那么在所有Android设备都可以运行； 如果项目只包含了 armeabi-v7a，除armeabi架构的设备外都可以运行； 如果项目只包含了 x86，那么armeabi架构和armeabi-v7a的Android设备是无法运行的； 如果同时包含了 armeabi， armeabi-v7a和x86，所有设备都可以运行，程序在运行的时候去加载不同平台对应的so，这是较为完美的一种解决方案，同时也会导致包变大。
+
+
 ### 62、Google Play Store 过滤问题总结
 
 说明：当用户在 Google Play 上搜索或浏览应用以下载时，会根据哪些应用与其设备兼容来过滤搜索结果。例如，如果应用需要摄像头，Google Play 不会在没有摄像头的设备上显示该应用。这种过滤帮助开发者管理其应用的分发，并且有助于确保为用户提供最佳的体验
