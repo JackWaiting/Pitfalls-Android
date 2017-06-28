@@ -99,11 +99,11 @@ Nexus 7 没有电话功能 ，然而在应用的 Manifest 文件里声明了电�
 
 ### 60、Android 6.0+设备无法获取`WRITE_EXTERNAL_STORAGE`权限
 
-**描述：**Android6.0+以后，系统对权限管理模块进行的升级，并且对权限进行的分类，其中`WRITE_EXTERNAL_STORAGE`为危险权限。
+**描述：** Android6.0+以后，系统对权限管理模块进行的升级，并且对权限进行的分类，其中`WRITE_EXTERNAL_STORAGE`为危险权限。
 
-**问题：**Android6.0+的手机上使用录音功能后播放无声音，此时用户点击了允许录音的权限，但是仍然无法录音。
+**问题：** Android6.0+的手机上使用录音功能后播放无声音，此时用户点击了允许录音的权限，但是仍然无法录音。
 
-**解决：**通过现象排查，由于出现此问题的手机Android系统均为6.0+，而6.0+的手机在权限这块改定较大，通过调试发现此问题的原因是无法获取WRITE_EXTERNAL_STORAGE权限，导致录音文件未被写入SD卡，以至于播放录音无声音；**将文件存储路径改为/data/data/包名/cache/;**解决此问题，因为此路径为内置路径，在6.0系统（ API > 23 ）时，不需要申请权限就可以向这个目录写入文件。
+**解决：** 通过现象排查，由于出现此问题的手机Android系统均为6.0+，而6.0+的手机在权限这块改定较大，通过调试发现此问题的原因是无法获取WRITE_EXTERNAL_STORAGE权限，导致录音文件未被写入SD卡，以至于播放录音无声音；**将文件存储路径改为/data/data/包名/cache/;** 解决此问题，因为此路径为内置路径，在6.0系统（ API > 23 ）时，不需要申请权限就可以向这个目录写入文件。
 
 ### 59、解决传说中的 Android 65k 问题
 
@@ -117,7 +117,7 @@ Nexus 7 没有电话功能 ，然而在应用的 Manifest 文件里声明了电�
 	> com.android.build.api.transform.TransformException:
 	> com.android.ide.common.process.ProcessException: org.gradle.process.internal.ExecException: Process 'command 'C:\Program Files\Java\jdk1.8.0_51\bin\java.exe'' finished with non-zero exit value 2
 
-**解决方法（针对Android Studio）：**在build.gradle中对应的地方添加
+**解决方法（针对Android Studio）：** 在build.gradle中对应的地方添加
 multiDexEnabled true 这句代码就行了，如下
 	
 	android {
@@ -136,9 +136,9 @@ multiDexEnabled true 这句代码就行了，如下
 
 ### 57、BLE中心设备的 **onCharacteristicChanged()** 方法没有回调
 
-**描述：**当设备为 **Indication** 模式时，设备的值有变化时会主动返回给App，App在 **onCharacteristicChanged()** 方法中能收到返回的值。
+**描述：** 当设备为 **Indication** 模式时，设备的值有变化时会主动返回给App，App在 **onCharacteristicChanged()** 方法中能收到返回的值。
 
-**问题：**在App中通过如下代码注册监听，注册成功后就能接收到设备主动反馈的值了。然而以下代码执行后依旧收不到反馈。   
+**问题：** 在App中通过如下代码注册监听，注册成功后就能接收到设备主动反馈的值了。然而以下代码执行后依旧收不到反馈。   
 
 	bluetoothGatt.setCharacteristicNotification(characteristic, true)
 
@@ -159,11 +159,11 @@ multiDexEnabled true 这句代码就行了，如下
 
 ### 56、Android 6.0 动态请求权限
 
-**描述：**Android 应用在访问额外的资源或信息时，需要请求相应权限。根据权限的敏感性，系统可能会自动授予权限，或者由用户对请求进行许可。Android6.0及以上应用除了在清单文件中声明权限，敏感权限还需要在用户使用时动态授予。官方定义了[普通和危险权限](https://developer.android.com/guide/topics/security/permissions.html#normal-dangerous)，经测试发现**部分手机厂商的敏感权限会有所差异**。   
+**描述：** Android 应用在访问额外的资源或信息时，需要请求相应权限。根据权限的敏感性，系统可能会自动授予权限，或者由用户对请求进行许可。Android6.0及以上应用除了在清单文件中声明权限，敏感权限还需要在用户使用时动态授予。官方定义了[普通和危险权限](https://developer.android.com/guide/topics/security/permissions.html#normal-dangerous)，经测试发现**部分手机厂商的敏感权限会有所差异** 。   
 
-**问题：**应用中用到 **READ\_PHONE\_STATE** 权限来获取设备ID，在华为、小米的6.0系统的手机上运行都可以正常获取，然而在Nexus5X上获取失败而导致应用闪退。
+**问题：** 应用中用到 **READ\_PHONE\_STATE** 权限来获取设备ID，在华为、小米的6.0系统的手机上运行都可以正常获取，然而在Nexus5X上获取失败而导致应用闪退。
 
-**原因：**华为、小米等系统会默认允许该权限，而官方定义该权限为危险权限默认不被允许。   
+**原因：** 华为、小米等系统会默认允许该权限，而官方定义该权限为危险权限默认不被允许。   
 
 **解决：**   
 >1，将 **targetSdkVersion** 版本号调整为 **23** 以下，这样应用不需要在运行时请求权限，系统会默认允许清单文件中所有权限。   
