@@ -6,6 +6,66 @@
 解决方法：****
 ***
 
+### 64、Android Studio 3.0 编译项目无法找到 Gradle
+
+问题现象：  
+build.gradle 文件：
+
+```
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.0.0-alpha3'
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+allprojects {
+    repositories {
+        jcenter()
+        maven { url 'https://jitpack.io' }
+    }
+}
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+```
+
+Android Studio 3.0 Canary 3 编译项目提醒：
+
+```
+Error:Could not find com.android.tools.build:gradle:3.0.0-alpha2.
+Searched in the following locations:
+    file:/Applications/Android Studio 3.0 Preview.app/Contents/gradle/m2repository/com/android/tools/build/gradle/3.0.0-alpha2/gradle-3.0.0-alpha2.pom
+    file:/Applications/Android Studio 3.0 Preview.app/Contents/gradle/m2repository/com/android/tools/build/gradle/3.0.0-alpha2/gradle-3.0.0-alpha2.jar
+    https://jcenter.bintray.com/com/android/tools/build/gradle/3.0.0-alpha2/gradle-3.0.0-alpha2.pom
+    https://jcenter.bintray.com/com/android/tools/build/gradle/3.0.0-alpha2/gradle-3.0.0-alpha2.jar
+Required by:
+    project :
+```
+
+原因分析：找不到，可能是网络或者服务器问题，最终定位到是 Google 更新了针对 Android Gradle 编译的仓库地址有更新。
+
+解决方法：我们需要在 build.gradle 文件中追加：
+
+```
+repositories {
+   maven {
+       url "https://maven.google.com"
+   }
+}
+```
+
+官方文档说明：  
+[https://android-developers.googleblog.com/2017/05/android-studio-3-0-canary1.html](https://android-developers.googleblog.com/2017/05/android-studio-3-0-canary1.html)
+
+
+
+
 ### 64、编译时出现jar包内包含相同的文件
 
 问题现象：
