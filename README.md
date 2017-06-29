@@ -9,15 +9,15 @@
 
 ### 66、ScrollView与RecyclerView嵌套后的冲突问题
 
-问题现象：
+**问题现象：** 
 我们以前在使用GridView,ListView与ScrollView嵌套时一定有遇到显示不全或者滑动冲突等问题，
 在我们的RecyclerView使用中仍然难逃此劫，甚至有的时候会有卡顿的问题。下面我们介绍一下如何解决这个问题
 
-原因分析：   
+**原因分析：**   
 
 同理与ListView与GridView相同
 
-解决方法：
+**解决方法：**
 
 #### 1、卡顿，滑动不流畅问题。
 
