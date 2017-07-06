@@ -1,12 +1,110 @@
 # pitfalls-android
+### 注：新增加 [Exception](https://github.com/42Chapters/pitfalls-android/blob/master/Exception.md) ，用来记录Android 开发中各种异常的背后原因。
+
 ***
 >**问题格式保持下统一：**    
 问题现象：****    
 原因分析：****    
-解决方法：****
+解决方法：****   
 ***
 
-### 64、Android Studio 3.0 编译项目无法找到 Gradle
+
+
+### 69、多线程同时访问集合（ConcurrentModificationException）
+
+**问题现象：** 
+
+多线程同时修改集合时常常容易出现 **ConcurrentModificationException** ，即便是改成用 *Collections.synchronizedCollection()* 方法同步也无效。
+
+**原因分析：**
+
+当集合正在迭代时，如果进行修改就会出现异常，[@问题13]() 已经说过该问题。而 *synchronizedCollection()* 方法虽然对部分操作加上了 *synchronized* 关键字以保证线程安全，但其 *iterator()* 操作不是线程安全的，在迭代时操作依然会出现异常，并且效率也比较低。
+
+**解决方法：**
+
+在 Java 中早已有比较好的替代对象，相比起来有更加细化的锁机制，效率更高，不会出现 *ConcurrentModificationException* 异常。
+
+- **ConcurrentHashMap** 为 Map 的同步，设计与实现非常精巧，很适合[学习](http://www.importnew.com/22007.html)        
+- **CopyOnWriteArrayList** 为 List 的同步，采用写入时复制的方式避开并发问题，当修改操作较多时性能上会有比较大的代价   
+
+
+### 68、Facebook 或 Twitter 自定义登陆按钮样式
+
+**问题现象：** 
+
+使用官方的 SDK 做登陆时，只提供了登陆按钮作为跳转入口，但是样式和设计图有很大出入，直接设置按钮的样式很难达到想要的效果。
+
+**原因分析：** 
+
+官方应该是推荐登陆时使用默认的样式，这样来避免或达到某些目的。虽然尽力想用默认的样式，不过由于与 UI 的其它部分太不搭了，还是决定自定义。
+
+**解决方法：**
+
+先将官方按钮设置为不可见，然后自定义效果样式按钮，并将点击事件实现为触发官方按钮的点击事件，如下：
+
+    <com.twitter.sdk.android.core.identity.TwitterLoginButton
+        android:visibility="invisible" />
+	
+	// 或使用 performClick() 方法
+	twitterLoginButton.callOnClick();
+
+
+### 67、Android 5.0 的通知栏 SmallIcon 的 BUG
+
+**问题现象：**  
+
+	android.app.RemoteServiceException: Bad notification posted from package xxx.xxx.xxx: 
+	Couldn't create icon: StatusBarIcon(xxx.xxxx)
+
+**原因分析：** 
+
+算作是 Android5.0 的 Bug，在 android4.4 和 6.0 中都正常。
+
+**解决方法：**
+
+```java
+if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP
+	|| Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP_MR1){
+	iconId = mContext.getApplicationInfo().icon;
+}
+NotificationCompat.Builder.setSmallIcon(iconId)
+```
+
+
+### 66、ScrollView与RecyclerView嵌套后的冲突问题
+
+**问题现象：** 
+我们以前在使用GridView,ListView与ScrollView嵌套时一定有遇到显示不全或者滑动冲突等问题，
+在我们的RecyclerView使用中仍然难逃此劫，甚至有的时候会有卡顿的问题。下面我们介绍一下如何解决这个问题
+
+**原因分析：**   
+
+同理与ListView与GridView相同
+
+**解决方法：**
+
+#### 1、卡顿，滑动不流畅问题。
+
+>首先解决卡顿的问题使用**mRecyclerView.setNestedScrollingEnabled(false);**                          
+>这个目前是最优解
+
+
+#### 2、显示不全（6.0以上容易出现此问题）
+> 方法一：在Recycler的父布局中添加RelativeLayout隔离，不用像一些博客说的那样进行高度计算和         OnMeasured()重写。（未解决尝试方式二）  
+         
+> 方法二：将你的ScrollView替换成android.support.v4.widget.NestedScrollView，此方法对此问题有优化（未解决尝试方式三）  
+         
+> 方法三：如上还未解决或者只显示一行，把design库和V7库升级到23.2以上，然后加上如下代码
+>  mLinearLayoutManager.setSmoothScrollbarEnabled(true);  
+   mLinearLayoutManager.setAutoMeasureEnabled(true);  
+   mRecuclerView.setLayoutManager(mLinearLayoutManager);  
+   mRecuclerView.setHasFixedSize(true);  
+   **mRecuclerView.setNestedScrollingEnabled(false);**  
+
+> 如果还未解决，或者只显示一行，你可以核对一下你的适配器子布局中高度是否使用了
+android:layout_height="match_parent"
+
+### 65、Android Studio 3.0 编译项目无法找到 Gradle
 
 问题现象：  
 build.gradle 文件：
@@ -62,8 +160,6 @@ repositories {
 
 官方文档说明：  
 [https://android-developers.googleblog.com/2017/05/android-studio-3-0-canary1.html](https://android-developers.googleblog.com/2017/05/android-studio-3-0-canary1.html)
-
-
 
 
 ### 64、编译时出现jar包内包含相同的文件
