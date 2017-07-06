@@ -1,4 +1,7 @@
 # pitfalls-android
+
+<img src="logo-pitfalls-android.png" width="" height="200"/>
+
 ### 注：新增加 [Exception](https://github.com/42Chapters/pitfalls-android/blob/master/Exception.md) ，用来记录Android 开发中各种异常的背后原因。
 
 ***
