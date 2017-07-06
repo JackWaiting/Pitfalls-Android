@@ -1,5 +1,6 @@
 # pitfalls-android
-### 新增加 [Exception](https://github.com/42Chapters/pitfalls-android/blob/master/Exception.md) ，用来记录Android 开发中各种异常的背后原因。
+### 注：新增加 [Exception](https://github.com/42Chapters/pitfalls-android/blob/master/Exception.md) ，用来记录Android 开发中各种异常的背后原因。
+
 ***
 >**问题格式保持下统一：**    
 问题现象：****    
