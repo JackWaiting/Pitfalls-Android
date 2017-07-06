@@ -5,6 +5,7 @@
 原因分析：****    
 解决方法：****
 ***
+新增加 [Exception](https://github.com/42Chapters/pitfalls-android/blob/master/Exception.md)，用来记录Android 开发中各种异常的背后原因。
 
 
 ### 69、多线程同时访问集合（ConcurrentModificationException）
