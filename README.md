@@ -15,6 +15,24 @@
 解决方法：****   
 ***
 
+### 71、10月份小知识点记录
+1、UrlQuerySanitizer——使用这个工具可以方便对 URL 进行检查。
+
+2、Activity.recreate重新创建Activity。有什么用呢？可以在程序更换主题后，立马刷新当前Activity，而不会有明显的重启Activity的动画。(屏幕会变黑一下)
+
+3、设置TextView单行显示的时候不要用Lines=1,而要用singleLine=”true”,因为魅族部分手机在设置Lines=1的时候，然后TextView的值全为数字的时候， 你就会懵逼了。
+
+4、PageTransformer接口，用来自定义ViewPager页面切换动画，用setPageTransformer(boolean,PageTransformer)方法来进行设置；
+android:animateLayoutChanges=”true”，LinearLayout中添加View的动画的办法，支持通过setLayoutTransition()自定义动画。
+
+5、android:descendantFocusability，ListView的item中CheckBox等元素抢焦点导致item点击事件无法响应时，除了给对应的元素设置 focusable,更简单的是在item根布局加上android:descendantFocusability=”blocksDescendants”。
+includeFontPadding=”false”，TextView默认上下是有一定的padding的，有时候我们可能不需要上下这部分留白，加上它即可。
+
+6、WeakHashMap，直接使用HashMap有时候会带来内存溢出的风险，使用WaekHashMap实例化Map。当使用者不再有对象引用的时候，WeakHashMap将自动被移除对应Key值的对象。
+
+7、
+View.post方便在非UI线程对界面进行修改，与Handler的作用类似。并且由于post的Runnable会保证在该View绘制完成的前提下才调用，所以一般也可以用于获取View的宽高；还有一种是用getViewTreeObserver获取宽高。
+
 
 ### 70、关于修改固件蓝牙名称的问题记录
 
